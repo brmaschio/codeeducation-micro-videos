@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\Uuid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Ramsey\Uuid\Uuid;
 
 class Genre extends Model
 {
     
-    use SoftDeletes;
+    use SoftDeletes, Uuid;
     protected $fillable = ['name', 'is_active'];
     protected $dates = ['deleted_at'];
 
@@ -18,14 +18,6 @@ class Genre extends Model
         'is_active' => 'boolean',
     ];
 
-    public static function boot()
-    {
-        parent::boot();
-        
-        static::creating(function($obj){
-            $obj->id = Uuid::uuid4();
-        });
-    
-    }
+    public $incrementing = false;
 
 }
