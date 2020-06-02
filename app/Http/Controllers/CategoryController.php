@@ -5,49 +5,68 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use Illuminate\Http\Request;
 
-class CategoryController extends Controller
+class CategoryController extends BasicCrudController
+// class CategoryController extends Controller
 {
 
     private $rules = [
         'name' => 'required||max:255',
-        'is_active' => 'boolean'
+        'is_active' => 'boolean',
+        'description' => 'nullable'
     ];
 
-    public function create() {}
-    public function edit(Category $category) {}
-
-    public function index()
+    protected function model()
     {
-        return Category::all();
+        return Category::class;
     }
 
-    // modelo 1 de validar, trocando Request por CategoryRequest
-    public function store(Request $request)
+    protected function rulesStore()
     {
-        // outro metodo de validar info
-        $this->validate($request, $this->rules);
-        $category = Category::create($request->all());
-        $category->refresh();
-        return $category;
+        return $this->rules;
     }
 
-
-    public function show(Category $category)
+    protected function rulesUpdate()
     {
-        return $category;
+        return $this->rules;
     }
 
-    public function update(Request $request, Category $category)
-    {
-        $this->validate($request, $this->rules);
-        $category->update($request->all());
-        return $category;
-    }
+    // Estrutura Antiga
+
+    // public function create() {}
+    // public function edit(Category $category) {}
+
+    // public function index()
+    // {
+    //     return Category::all();
+    // }
+
+    // // modelo 1 de validar, trocando Request por CategoryRequest
+    // public function store(Request $request)
+    // {
+    //     // outro metodo de validar info
+    //     $this->validate($request, $this->rules);
+    //     $category = Category::create($request->all());
+    //     $category->refresh();
+    //     return $category;
+    // }
 
 
-    public function destroy(Category $category)
-    {
-        $category->delete();
-        return response()->noContent(); //204
-    }
+    // public function show(Category $category)
+    // {
+    //     return $category;
+    // }
+
+    // public function update(Request $request, Category $category)
+    // {
+    //     $this->validate($request, $this->rules);
+    //     $category->update($request->all());
+    //     return $category;
+    // }
+
+
+    // public function destroy(Category $category)
+    // {
+    //     $category->delete();
+    //     return response()->noContent(); //204
+    // }
 }

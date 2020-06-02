@@ -8,7 +8,12 @@ use Tests\TestCase;
 
 class GenreControllerTest extends TestCase
 {
-
+    /**
+     * 
+     *  Mantida estrutura antiga de teste para fins de ficar registrado outra maneira de crialos
+     * 
+     */
+    
     use DatabaseMigrations;
 
     public function testIndex()
