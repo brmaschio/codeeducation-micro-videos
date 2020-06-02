@@ -8,3 +8,4 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::resource('categories', 'CategoryController');
 Route::resource('genres', 'GenreController');
+Route::resource('cast_members', 'CastMemberController');
