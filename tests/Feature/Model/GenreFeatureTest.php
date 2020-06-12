@@ -58,10 +58,10 @@ class GenreFeatureTest extends TestCase
 
     public function testDelete() {
 
-        $category = Genre::create(['name' => 'test']);
+        $genre = Genre::create(['name' => 'test']);
 
-        $category->delete();
-        $this->assertNull(Genre::find($category->id));
+        $genre->delete();
+        $this->assertNull(Genre::find($genre->id));
 
     }
 
