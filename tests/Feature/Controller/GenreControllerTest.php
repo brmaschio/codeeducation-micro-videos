@@ -35,7 +35,7 @@ class GenreControllerTest extends TestCase
         // $response->assertStatus(200)->assertJson([$genre->toArray()]);
 
         $response = $this->get(route('genres.index'));
-        $response->assertStatus(200)->assertJson([$this->video->toArray()]);
+        $response->assertStatus(200)->assertJson([$this->genre->toArray()]);
 
     }
 
