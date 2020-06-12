@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Video extends Model
 {
-    
+
     use SoftDeletes, Uuid;
 
     const NO_RATING = 'L';
@@ -34,4 +34,13 @@ class Video extends Model
 
     public $incrementing = false;
 
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class);
+    }
+
+    public function genres()
+    {
+        return $this->belongsToMany(Genre::class);
+    }
 }

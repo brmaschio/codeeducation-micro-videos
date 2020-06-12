@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Controller\Feature;
+namespace Tests\Feature\Controller;
 
 use App\Models\CastMember;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
