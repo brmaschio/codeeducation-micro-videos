@@ -29,10 +29,14 @@ class GenreControllerTest extends TestCase
 
     public function testIndex()
     {
-        $genre = Genre::create(['name' => 'test']);
-        $response = $this->get(route('genres.index'));
+        // $genre = Genre::create(['name' => 'test']);
+        // $response = $this->get(route('genres.index'));
 
-        $response->assertStatus(200)->assertJson([$genre->toArray()]);
+        // $response->assertStatus(200)->assertJson([$genre->toArray()]);
+
+        $response = $this->get(route('genres.index'));
+        $response->assertStatus(200)->assertJson([$this->video->toArray()]);
+
     }
 
     public function testShow()
