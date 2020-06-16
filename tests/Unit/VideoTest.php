@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use App\Models\Video;
+use App\Traits\UploadFiles;
 use PHPUnit\Framework\TestCase;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Traits\Uuid;
@@ -27,7 +28,7 @@ class VideoTest extends TestCase
 
     public function testUseTraits()
     {
-        $traits = [SoftDeletes::class, Uuid::class];
+        $traits = [SoftDeletes::class, Uuid::class, UploadFiles::class];
 
         $videoTraits = array_keys(class_uses(video::class));
 
