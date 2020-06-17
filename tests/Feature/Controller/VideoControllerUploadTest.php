@@ -133,7 +133,7 @@ class VideoControllerUploadTest extends TestCase
     //         ]);
 
     //     } catch (Exception $th) {
-    //         $this->assertCount(0, Storage::allFiles());
+    //         $this->assertCount(0, \Storage::allFiles());
     //         $hasError = true;
     //     }
 
