@@ -34,7 +34,7 @@ class VideoControllerUploadTest extends TestCase
 
     public function testInvaidationFileCreate()
     {
-        
+
         $file = UploadedFile::fake()->create("video.errorType");
         $data = ['video_file' => $file];
         $response = $this->json('POST', $this->routeStore(), $data);
@@ -49,13 +49,13 @@ class VideoControllerUploadTest extends TestCase
 
     public function testInvaidationFileUpdate()
     {
-        
+
         $file = UploadedFile::fake()->create("video.errorType");
         $data = ['video_file' => $file];
         $response = $this->json('PUT', $this->routeUpdate(), $data);
         $this->assertInvalidationFields($response, ['video_file'], 'mimetypes', ['values' => 'video/mp4']);
 
-        
+
         $file = UploadedFile::fake()->create('video.mp4')->size(2000);
         $data = ['video_file' => $file];
         $response = $this->json('PUT', $this->routeUpdate(), $data);
@@ -68,20 +68,26 @@ class VideoControllerUploadTest extends TestCase
 
         $category = factory(Category::class)->create();
         $genre = factory(Genre::class)->create();
-        
+
         \Storage::fake();
-        $file = UploadedFile::fake()->create('video.mp4');
+        $video = UploadedFile::fake()->image('video.mp4');
+        $imageTumb = UploadedFile::fake()->image("image.jpg");
 
         $testData = $this->sendData + [
-            'categories_id' => [$category->id], 
+            'categories_id' => [$category->id],
             'genres_id' => [$genre->id],
-            'video_file' => $file
+            'video_file' => $video,
+            'tumb_file' => $imageTumb
         ];
 
         $response = $this->assertStore($testData, $this->sendData);
-        $response->assertJsonStructure(['created_at', 'updated_at']);
+        $response->assertJsonStructure(['video_file', 'tumb_file']);
         $id = $response->json('id');
-        \Storage::assertExists("$id/{$file->hashName()}");
+
+        // dump($response->json());
+
+        \Storage::assertExists("$id/{$video->hashName()}");
+        \Storage::assertExists("$id/{$imageTumb->hashName()}");
 
     }
 
@@ -91,20 +97,48 @@ class VideoControllerUploadTest extends TestCase
         $genre = factory(Genre::class)->create();
 
         \Storage::fake();
-        $file = UploadedFile::fake()->create('video.mp4');
+        $file = UploadedFile::fake()->image('video.mp4');
 
         $testData = $this->sendData + [
-            'categories_id' => [$category->id], 
+            'categories_id' => [$category->id],
             'genres_id' => [$genre->id],
             'video_file' => $file
         ];
 
         $response = $this->assertUpdate($testData, $this->sendData);
-        $response->assertJsonStructure(['created_at', 'updated_at']);
+        $response->assertJsonStructure(['video_file']);
         $id = $response->json('id');
         \Storage::assertExists("$id/{$file->hashName()}");
-        
+
     }
+
+    // public function testRollbackFilesInStores()
+    // {
+    //     \Storage::fake();
+    //     \Event::listen(TransactionCommitted::class, function () {
+    //         throw new \Exception;
+    //     });
+    //     $hasError = false;
+
+    //     try {
+
+    //         $file = UploadedFile::fake()->image('video.mp4');
+    //         $category = factory(Category::class)->create();
+    //         $genre = factory(Genre::class)->create();
+
+    //         Video::create($this->sendData + [
+    //             'categories_id' => [$category->id],
+    //             'genres_id' => [$genre->id],
+    //             'video_file' => $file
+    //         ]);
+
+    //     } catch (Exception $th) {
+    //         $this->assertCount(0, Storage::allFiles());
+    //         $hasError = true;
+    //     }
+
+    //     $this->assertTrue($hasError);
+    // }
 
     protected function routeStore()
     {

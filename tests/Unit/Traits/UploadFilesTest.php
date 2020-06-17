@@ -30,9 +30,11 @@ class UploadFilesTests extends TestCase
         \Storage::fake();
         $file = UploadedFile::fake()->create('video.mp4');
         $file2 = UploadedFile::fake()->create('video-2.mp4');
-        $this->obj->uploadFiles([$file, $file2]);
+        $file3 = UploadedFile::fake()->image('tumb.jpg');
+        $this->obj->uploadFiles([$file, $file2, $file3]);
         \Storage::assertExists("1/{$file->hashName()}");
         \Storage::assertExists("1/{$file2->hashName()}");
+        \Storage::assertExists("1/{$file3->hashName()}");
     }
 
     public function testeDeleteFile()
