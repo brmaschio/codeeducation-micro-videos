@@ -42,8 +42,6 @@ class Video extends Model
     {
         $files = self::extractFiles($attributes);
 
-        // dump($files);
-
         try {
             \DB::beginTransaction();
             /** @var Video $obj */
@@ -73,15 +71,15 @@ class Video extends Model
             $saved = parent::update($attributes, $options);
             static::handleRelarions($this, $attributes);
             if ($saved) {
-
                 $this->uploadFiles($files);
-                //TODO excluir antigos
-
             }
             \DB::commit();
+            if($saved && count($files)){
+                $this->deleteOldFiles();
+            }
             return $saved;
         } catch (\Exception $e) {
-            $obj->deleteFiles($files);
+            $this->deleteFiles($files);
             \DB::rollBack();
             throw $e;
         }

@@ -5,6 +5,7 @@ namespace Tests\Feature\Controller;
 use App\Models\Category;
 use App\Models\Genre;
 use App\Models\Video;
+use Illuminate\Database\Events\TransactionCommitted;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
@@ -84,8 +85,6 @@ class VideoControllerUploadTest extends TestCase
         $response->assertJsonStructure(['video_file', 'tumb_file']);
         $id = $response->json('id');
 
-        // dump($response->json());
-
         \Storage::assertExists("$id/{$video->hashName()}");
         \Storage::assertExists("$id/{$imageTumb->hashName()}");
 
@@ -110,35 +109,47 @@ class VideoControllerUploadTest extends TestCase
         $id = $response->json('id');
         \Storage::assertExists("$id/{$file->hashName()}");
 
+        $newFile = UploadedFile::fake()->image('filme.mp4');
+        $testData = $this->sendData + [
+            'categories_id' => [$category->id],
+            'genres_id' => [$genre->id],
+            'video_file' => $newFile
+        ];
+        $response = $this->assertUpdate($testData, $this->sendData);
+        $id = $response->json('id');
+
+        \Storage::assertMissing("$id/{$file->hashName()}");
+        \Storage::assertExists("$id/{$newFile->hashName()}");
+
     }
 
-    // public function testRollbackFilesInStores()
-    // {
-    //     \Storage::fake();
-    //     \Event::listen(TransactionCommitted::class, function () {
-    //         throw new \Exception;
-    //     });
-    //     $hasError = false;
+    public function testRollbackFilesInStores()
+    {
+        \Storage::fake();
+        \Event::listen(TransactionCommitted::class, function () {
+            throw new \Exception;
+        });
+        $hasError = false;
 
-    //     try {
+        try {
 
-    //         $file = UploadedFile::fake()->image('video.mp4');
-    //         $category = factory(Category::class)->create();
-    //         $genre = factory(Genre::class)->create();
+            $file = UploadedFile::fake()->image('video.mp4');
+            $category = factory(Category::class)->create();
+            $genre = factory(Genre::class)->create();
 
-    //         Video::create($this->sendData + [
-    //             'categories_id' => [$category->id],
-    //             'genres_id' => [$genre->id],
-    //             'video_file' => $file
-    //         ]);
+            Video::create($this->sendData + [
+                'categories_id' => [$category->id],
+                'genres_id' => [$genre->id],
+                'video_file' => $file
+            ]);
 
-    //     } catch (Exception $th) {
-    //         $this->assertCount(0, \Storage::allFiles());
-    //         $hasError = true;
-    //     }
+        } catch (\Exception $e) {
+            $this->assertCount(0, \Storage::allFiles());
+            $hasError = true;
+        }
 
-    //     $this->assertTrue($hasError);
-    // }
+        $this->assertTrue($hasError);
+    }
 
     protected function routeStore()
     {

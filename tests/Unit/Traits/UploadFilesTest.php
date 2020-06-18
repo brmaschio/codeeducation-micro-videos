@@ -104,10 +104,9 @@ class UploadFilesTests extends TestCase
         $this->obj->deleteOldFiles();
         $this->assertCount(2, \Storage::allFiles());
 
-        // nao esta excluindo, verificar
         $this->obj->oldFiles = [$file2->hashName()];
         $this->obj->deleteOldFiles();
-        // \Storage::assertMissing("1/{$file2->hashName()}");
+        \Storage::assertMissing("1/{$file2->hashName()}");
         \Storage::assertExists("1/{$file->hashName()}");
 
     }

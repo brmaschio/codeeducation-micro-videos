@@ -9,16 +9,20 @@ use Illuminate\Support\Arr;
 trait UploadFiles
 {
 
-    protected $oldFiles = [];
+    /**
+     * @var array
+     */
+    public $oldFiles = [];
 
     protected abstract function uploadDir();
 
-    public static function bootUploader()
+    public static function bootUploadFiles()
     {
+
         static::updating(function (Model $model) {
 
             $fieldsUpdated = array_keys($model->getDirty());
-            $filefieldsUpdated = array_intersect($fieldsUpdated, self::$fileFields);
+            $filefieldsUpdated = array_intersect($fieldsUpdated, self::$fileField);
             $fileFieldsToBeUpdated = Arr::where($filefieldsUpdated, function ($fileField) use ($model) {
                 return $model->getOriginal($fileField);
             });
@@ -69,12 +73,11 @@ trait UploadFiles
     {
         $files = [];
         foreach (self::$fileField as $file) {
-            if(isset($attributes[$file]) && $attributes[$file] instanceof UploadedFile){
+            if (isset($attributes[$file]) && $attributes[$file] instanceof UploadedFile) {
                 $files[] = $attributes[$file];
                 $attributes[$file] = $attributes[$file]->hashName();
             }
         }
         return $files;
     }
-
 }
