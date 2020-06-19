@@ -1,13 +1,15 @@
 steps:
 
-    - id: "Decrypt Chave Storage"
+    - id: "Decrypt Chave Google Storage"
       name: 'gcr.io/cloud-builders/gcloud'
       args:
         - kms
         - decrypt
         - --ciphertext-file=./storage/credentials/google/service-account-storage.json.enc
         - --plaintext-file=./storage/credentials/google/service-account-storage.json
-        - --location=global --keyring=storage-adm --key=service-account
+        - --location=global 
+        - --keyring=storage-adm 
+        - --key=service-account
 
     - id: "Rodando docker-compose"
       name: 'gcr.io/$PROJECT_ID/docker-compose:1.25.5'
