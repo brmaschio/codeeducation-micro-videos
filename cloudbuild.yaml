@@ -10,11 +10,11 @@ steps:
     
     - id: "Copiando .env"
       name: 'gcr.io/cloud-builders/docker'
-      args: ['exec','-t','app','cp','.env.example','.env']
+      args: ['exec','-t','app','cp','./.docker/app/.env','.env']
 
     - id: "Copiando .env.test"
       name: 'gcr.io/cloud-builders/docker'
-      args: ['exec','-t','app','cp','.env.test.example','.env.test']
+      args: ['exec','-t','app','cp','./.docker/app/.env.test','.env.test']
     
     - id: "Rodando key:generate"
       name: 'gcr.io/cloud-builders/docker'
