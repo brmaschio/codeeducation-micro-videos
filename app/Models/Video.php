@@ -15,6 +15,11 @@ class Video extends Model
     const NO_RATING = 'L';
     const RATING_LIST = [self::NO_RATING, '10', '12', '14', '16', '18'];
 
+    const THUMB_FILE_MAX_SIZE = 1024 * 5; // 5MB
+    const BANNER_FILE_MAX_SIZE = 1024 * 10; // 10MB
+    const TRAILER_FILE_MAX_SIZE = 1024 * 1024 * 1; // 1 GB
+    const VIDEO_FILE_MAX_SIZE = 1024 * 1024 * 50; // 50 GB
+
     protected $fillable = [
         'title',
         'description',
@@ -23,7 +28,9 @@ class Video extends Model
         'rating',
         'duration',
         'video_file',
-        'tumb_file'
+        'tumb_file',
+        'banner_file',
+        'trailer_file'
     ];
 
     protected $dates = ['deleted_at'];
@@ -36,7 +43,9 @@ class Video extends Model
     ];
 
     public $incrementing = false;
-    public static $fileField = ['video_file', 'tumb_file'];
+    public static $fileField = [
+        'video_file', 'tumb_file', 'banner_file', 'trailer_file'
+    ];
 
     public static function create(array $attributes = [])
     {
@@ -74,7 +83,7 @@ class Video extends Model
                 $this->uploadFiles($files);
             }
             \DB::commit();
-            if($saved && count($files)){
+            if ($saved && count($files)) {
                 $this->deleteOldFiles();
             }
             return $saved;

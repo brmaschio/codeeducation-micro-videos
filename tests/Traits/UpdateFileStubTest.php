@@ -26,7 +26,7 @@ class UpdateFileStubTest extends TestCase
 
         $this->assertCount(0, $this->obj->oldFiles);
 
-        $this->obj->update(['name' => 'teste updated', 'file' => 'newFile.mp']);
+        $this->obj->update(['name' => 'teste updated', 'file' => 'newFile.mp4']);
 
         $this->assertEqualsCanonicalizing(['file.mp4'], $this->obj->oldFiles);
     }

@@ -36,32 +36,96 @@ class VideoControllerUploadTest extends TestCase
     public function testInvaidationFileCreate()
     {
 
+        // Video
         $file = UploadedFile::fake()->create("video.errorType");
         $data = ['video_file' => $file];
         $response = $this->json('POST', $this->routeStore(), $data);
         $this->assertInvalidationFields($response, ['video_file'], 'mimetypes', ['values' => 'video/mp4']);
 
-        $file = UploadedFile::fake()->create('video.mp4')->size(2000);
+        $file = UploadedFile::fake()->create('video.mp4')->size(Video::VIDEO_FILE_MAX_SIZE + 1);
         $data = ['video_file' => $file];
         $response = $this->json('POST', $this->routeStore(), $data);
-        $this->assertInvalidationFields($response, ['video_file'], 'max.file', ['max' => 1024]);
+        $this->assertInvalidationFields($response, ['video_file'], 'max.file', ['max' => Video::VIDEO_FILE_MAX_SIZE]);
 
+        // Treiller
+        $file = UploadedFile::fake()->create("video.errorType");
+        $data = ['trailer_file' => $file];
+        $response = $this->json('POST', $this->routeStore(), $data);
+        $this->assertInvalidationFields($response, ['trailer_file'], 'mimetypes', ['values' => 'video/mp4']);
+
+        $file = UploadedFile::fake()->create('video.mp4')->size(Video::TRAILER_FILE_MAX_SIZE + 1);
+        $data = ['trailer_file' => $file];
+        $response = $this->json('POST', $this->routeStore(), $data);
+        $this->assertInvalidationFields($response, ['trailer_file'], 'max.file', ['max' => Video::TRAILER_FILE_MAX_SIZE]);
+
+        // Thumb
+        $file = UploadedFile::fake()->create("image.errorType");
+        $data = ['tumb_file' => $file];
+        $response = $this->json('POST', $this->routeStore(), $data);
+        $this->assertInvalidationFields($response, ['tumb_file'], 'image', ['values' => 'jpg']);
+
+        $file = UploadedFile::fake()->create('image.jpg')->size(Video::THUMB_FILE_MAX_SIZE + 1);
+        $data = ['tumb_file' => $file];
+        $response = $this->json('POST', $this->routeStore(), $data);
+        $this->assertInvalidationFields($response, ['tumb_file'], 'max.file', ['max' => Video::THUMB_FILE_MAX_SIZE]);
+
+        // Banner
+        $file = UploadedFile::fake()->create("image.errorType");
+        $data = ['banner_file' => $file];
+        $response = $this->json('POST', $this->routeStore(), $data);
+        $this->assertInvalidationFields($response, ['banner_file'], 'image', ['values' => 'jpg']);
+
+        $file = UploadedFile::fake()->create('image.jpg')->size(Video::BANNER_FILE_MAX_SIZE + 1);
+        $data = ['banner_file' => $file];
+        $response = $this->json('POST', $this->routeStore(), $data);
+        $this->assertInvalidationFields($response, ['banner_file'], 'max.file', ['max' => Video::BANNER_FILE_MAX_SIZE]);
     }
 
     public function testInvaidationFileUpdate()
     {
-
+        // Video
         $file = UploadedFile::fake()->create("video.errorType");
         $data = ['video_file' => $file];
         $response = $this->json('PUT', $this->routeUpdate(), $data);
         $this->assertInvalidationFields($response, ['video_file'], 'mimetypes', ['values' => 'video/mp4']);
 
-
-        $file = UploadedFile::fake()->create('video.mp4')->size(2000);
+        $file = UploadedFile::fake()->create('video.mp4')->size(Video::VIDEO_FILE_MAX_SIZE + 1);
         $data = ['video_file' => $file];
         $response = $this->json('PUT', $this->routeUpdate(), $data);
-        $this->assertInvalidationFields($response, ['video_file'], 'max.file', ['max' => 1024]);
+        $this->assertInvalidationFields($response, ['video_file'], 'max.file', ['max' => Video::VIDEO_FILE_MAX_SIZE]);
 
+        // Treiller
+        $file = UploadedFile::fake()->create("video.errorType");
+        $data = ['trailer_file' => $file];
+        $response = $this->json('PUT', $this->routeUpdate(), $data);
+        $this->assertInvalidationFields($response, ['trailer_file'], 'mimetypes', ['values' => 'video/mp4']);
+
+        $file = UploadedFile::fake()->create('video.mp4')->size(Video::TRAILER_FILE_MAX_SIZE + 1);
+        $data = ['trailer_file' => $file];
+        $response = $this->json('PUT', $this->routeUpdate(), $data);
+        $this->assertInvalidationFields($response, ['trailer_file'], 'max.file', ['max' => Video::TRAILER_FILE_MAX_SIZE]);
+
+        // Thumb
+        $file = UploadedFile::fake()->create("image.errorType");
+        $data = ['tumb_file' => $file];
+        $response = $this->json('PUT', $this->routeUpdate(), $data);
+        $this->assertInvalidationFields($response, ['tumb_file'], 'image', ['values' => 'jpg']);
+
+        $file = UploadedFile::fake()->create('image.jpg')->size(Video::THUMB_FILE_MAX_SIZE + 1);
+        $data = ['tumb_file' => $file];
+        $response = $this->json('PUT', $this->routeUpdate(), $data);
+        $this->assertInvalidationFields($response, ['tumb_file'], 'max.file', ['max' => Video::THUMB_FILE_MAX_SIZE]);
+
+        // Banner
+        $file = UploadedFile::fake()->create("image.errorType");
+        $data = ['banner_file' => $file];
+        $response = $this->json('PUT', $this->routeUpdate(), $data);
+        $this->assertInvalidationFields($response, ['banner_file'], 'image', ['values' => 'jpg']);
+
+        $file = UploadedFile::fake()->create('image.jpg')->size(Video::BANNER_FILE_MAX_SIZE + 1);
+        $data = ['banner_file' => $file];
+        $response = $this->json('PUT', $this->routeUpdate(), $data);
+        $this->assertInvalidationFields($response, ['banner_file'], 'max.file', ['max' => Video::BANNER_FILE_MAX_SIZE]);
     }
 
     public function testStoreWithFiles()
@@ -73,21 +137,26 @@ class VideoControllerUploadTest extends TestCase
         \Storage::fake();
         $video = UploadedFile::fake()->image('video.mp4');
         $imageTumb = UploadedFile::fake()->image("image.jpg");
+        $videoTreiller = UploadedFile::fake()->image("treiller.mp4");
+        $imageBanner = UploadedFile::fake()->image("image.jpg");
 
         $testData = $this->sendData + [
             'categories_id' => [$category->id],
             'genres_id' => [$genre->id],
             'video_file' => $video,
-            'tumb_file' => $imageTumb
+            'tumb_file' => $imageTumb,
+            'trailer_file' => $videoTreiller,
+            'banner_file' => $imageBanner
         ];
 
         $response = $this->assertStore($testData, $this->sendData);
-        $response->assertJsonStructure(['video_file', 'tumb_file']);
+        $response->assertJsonStructure(['video_file', 'tumb_file', 'trailer_file', 'banner_file']);
         $id = $response->json('id');
 
         \Storage::assertExists("$id/{$video->hashName()}");
         \Storage::assertExists("$id/{$imageTumb->hashName()}");
-
+        \Storage::assertExists("$id/{$videoTreiller->hashName()}");
+        \Storage::assertExists("$id/{$imageBanner->hashName()}");
     }
 
     public function testUpdateWithFiles()
@@ -97,30 +166,52 @@ class VideoControllerUploadTest extends TestCase
 
         \Storage::fake();
         $file = UploadedFile::fake()->image('video.mp4');
+        $imageTumb = UploadedFile::fake()->image("image.jpg");
+        $videoTreiller = UploadedFile::fake()->image("treiller.mp4");
+        $imageBanner = UploadedFile::fake()->image("image.jpg");
 
         $testData = $this->sendData + [
             'categories_id' => [$category->id],
             'genres_id' => [$genre->id],
-            'video_file' => $file
+            'video_file' => $file,
+            'tumb_file' => $imageTumb,
+            'trailer_file' => $videoTreiller,
+            'banner_file' => $imageBanner
         ];
 
         $response = $this->assertUpdate($testData, $this->sendData);
-        $response->assertJsonStructure(['video_file']);
+        $response->assertJsonStructure(['video_file', 'tumb_file', 'trailer_file', 'banner_file']);
         $id = $response->json('id');
         \Storage::assertExists("$id/{$file->hashName()}");
+        \Storage::assertExists("$id/{$imageTumb->hashName()}");
+        \Storage::assertExists("$id/{$videoTreiller->hashName()}");
+        \Storage::assertExists("$id/{$imageBanner->hashName()}");
 
         $newFile = UploadedFile::fake()->image('filme.mp4');
+        $newImageTumb = UploadedFile::fake()->image("image.jpg");
+        $newVideoTreiller = UploadedFile::fake()->image("treiller.mp4");
+        $newImageBanner = UploadedFile::fake()->image("image.jpg");
+
         $testData = $this->sendData + [
             'categories_id' => [$category->id],
             'genres_id' => [$genre->id],
-            'video_file' => $newFile
+            'video_file' => $newFile,
+            'tumb_file' => $newImageTumb,
+            'trailer_file' => $newVideoTreiller,
+            'banner_file' => $newImageBanner
         ];
         $response = $this->assertUpdate($testData, $this->sendData);
         $id = $response->json('id');
 
         \Storage::assertMissing("$id/{$file->hashName()}");
-        \Storage::assertExists("$id/{$newFile->hashName()}");
+        \Storage::assertMissing("$id/{$imageTumb->hashName()}");
+        \Storage::assertMissing("$id/{$videoTreiller->hashName()}");
+        \Storage::assertMissing("$id/{$imageBanner->hashName()}");
 
+        \Storage::assertExists("$id/{$newFile->hashName()}");
+        \Storage::assertExists("$id/{$newImageTumb->hashName()}");
+        \Storage::assertExists("$id/{$newVideoTreiller->hashName()}");
+        \Storage::assertExists("$id/{$newImageBanner->hashName()}");
     }
 
     public function testRollbackFilesInStores()
@@ -142,7 +233,6 @@ class VideoControllerUploadTest extends TestCase
                 'genres_id' => [$genre->id],
                 'video_file' => $file
             ]);
-
         } catch (\Exception $e) {
             $this->assertCount(0, \Storage::allFiles());
             $hasError = true;
