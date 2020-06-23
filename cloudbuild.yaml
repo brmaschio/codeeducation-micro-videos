@@ -5,8 +5,8 @@ steps:
       args:
         - kms
         - decrypt
-        - --ciphertext-file=./storage/credentials/google/service-account-storage.json.enc
-        - --plaintext-file=./storage/credentials/google/service-account-storage.json
+        - --ciphertext-file=./backend/storage/credentials/google/service-account-storage.json.enc
+        - --plaintext-file=./backend/storage/credentials/google/service-account-storage.json
         - --location=global 
         - --keyring=storage-adm 
         - --key=service-account
@@ -27,20 +27,20 @@ steps:
     
     - id: "Copiando .env"
       name: 'gcr.io/cloud-builders/docker'
-      args: ['exec','-t','app','cp','./.docker/app/.env','.env']
+      args: ['exec','-t','app','cp','./.docker/app/.env','./backend/.env']
 
     - id: "Copiando .env.test"
       name: 'gcr.io/cloud-builders/docker'
-      args: ['exec','-t','app','cp','./.docker/app/.env.test','.env.test']
+      args: ['exec','-t','app','cp','./.docker/app/.env.test','./backend/.env.test']
     
     - id: "Rodando key:generate"
       name: 'gcr.io/cloud-builders/docker'
-      args: ['exec','-t','app','php','/var/www/artisan','key:generate']    
+      args: ['exec','-t','app','php','/var/www/backend/artisan','key:generate']    
     
     - id: "Rodando migrations"
       name: 'gcr.io/cloud-builders/docker'
-      args: ['exec','-t','app','php','/var/www/artisan','migrate']    
+      args: ['exec','-t','app','php','/var/www/backend/artisan','migrate']    
     
     - id: "Rodando Phpunit"
       name: 'gcr.io/cloud-builders/docker'
-      args: ['exec','-t','app','php','/var/www/vendor/bin/phpunit','-c','/var/www/phpunit.xml'] 
+      args: ['exec','-t','app','php','/var/www/backend/vendor/bin/phpunit','-c','/var/www/phpunit.xml'] 
