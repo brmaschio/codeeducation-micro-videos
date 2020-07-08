@@ -6,11 +6,16 @@ import MenuIcon from "@material-ui/icons/Menu";
 
 import routes, { MyRouteProps } from '../../routes';
 
-const listRoutes = ['dashboard', 'categories.list'];
-
-const menuRoutes = routes.filter(route => listRoutes.includes(route.name));
+const listRoutes = [
+    'dashboard', 
+    'categories.list',
+    'cast_members.list',
+    'genres.list',
+];
 
 export const Menu = () => {
+
+    const menuRoutes = routes.filter(route => listRoutes.includes(route.name));
 
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);

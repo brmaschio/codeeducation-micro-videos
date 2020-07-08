@@ -7,7 +7,7 @@ import MUIDataTable, { MUIDataTableColumn } from 'mui-datatables';
 import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
 
-import { httpVideo } from '../../util/http';
+import categoryHttp from '../../util/http/category-http';
 
 const columnsDefinitions: MUIDataTableColumn[] = [
     {
@@ -40,7 +40,7 @@ const Table = () => {
 
     useEffect(() => {
 
-        httpVideo.get('categories').then(response => {
+        categoryHttp.list().then(response => {
             setData(response.data.data);
         });
 

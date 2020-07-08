@@ -15,6 +15,13 @@ class cors
      */
     public function handle($request, Closure $next)
     {
-        return $next($request)->header('Access-Control-Allow-Origin','*');
+
+        $origins = env('CORS_ORIGINS', []);
+
+        return $next($request)
+            ->header('Access-Control-Allow-Origin', explode(",", $origins))
+            ->header('Access-Control-Allow-Headers','*')
+            ->header('Access-Control-Allow-Methods','*');
+
     }
 }

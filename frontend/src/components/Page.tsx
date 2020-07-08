@@ -7,7 +7,7 @@ const useStyles = makeStyles({
     }
 });
 
-// Define tipo da ariavel
+// Define tipo da variavel
 type PageProps = {
     title: string
 };

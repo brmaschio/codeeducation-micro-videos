@@ -13,7 +13,7 @@ const List = () => {
         <Page title="Listar Membros do Elenco">
 
             <Box dir={'rtl'} paddingBottom={2}>
-                <Fab title="Adicionar Membros Do Elenco" size="small" component={Link} to="/cast-members/create" >
+                <Fab title="Adicionar Membros Do Elenco" size="small" component={Link} to="/cast_members/create" >
                     <AddIcon />
                 </Fab>
             </Box>

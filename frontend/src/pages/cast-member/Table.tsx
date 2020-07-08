@@ -6,9 +6,9 @@ import MUIDataTable, { MUIDataTableColumn } from 'mui-datatables';
 import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
 
-import { httpVideo } from '../../util/http';
+import castMemberHttp from "../../util/http/cast-member-http";
 
-const castMembersTyps = {
+export const CastMembersTypes = {
     1: 'Diretor',
     2: 'Ator'
 }
@@ -23,7 +23,7 @@ const columnsDefinitions: MUIDataTableColumn[] = [
         label: "Tipo",
         options: {
             customBodyRender(value, tableMeta, updateValue) {
-                return castMembersTyps[value];
+                return CastMembersTypes[value];
             }
         },
     },
@@ -44,8 +44,7 @@ const Table = () => {
 
     useEffect(() => {
 
-        httpVideo.get('cast_members').then(response => {
-            console.log(response.data.data)
+        castMemberHttp.list().then(response => {
             setData(response.data.data);
         });
 
