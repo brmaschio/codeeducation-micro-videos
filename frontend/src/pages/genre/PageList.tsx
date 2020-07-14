@@ -13,7 +13,8 @@ const List = () => {
         <Page title="Listar Gêneros">
 
             <Box dir={'rtl'} paddingBottom={2}>
-                <Fab title="Adicionar Gênero" size="small" component={Link} to="/genres/create" >
+                <Fab title="Adicionar Gênero" size="small" component={Link} to="/genres/create" 
+                    color="secondary">
                     <AddIcon />
                 </Fab>
             </Box>

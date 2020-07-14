@@ -5,22 +5,29 @@ import AppRouter from './routes/AppRouter';
 
 import './App.css';
 
-import { Box } from "@material-ui/core";
+import { Box, MuiThemeProvider, CssBaseline } from "@material-ui/core";
 
 import { NavBar } from './components/NavBar/index';
 import RouterBreadcrumbs from './components/Breadcrumbs';
+import { SnackbarProvider } from "./components/SnackbarProvider";
+import theme from './theme';
 
 function App() {
   return (
     <div>
 
-      <BrowserRouter>
-        <NavBar></NavBar>
-        <Box paddingTop={'70px'}>
-          <RouterBreadcrumbs />
-          <AppRouter></AppRouter>
-        </Box>
-      </BrowserRouter>
+      <MuiThemeProvider theme={theme}>
+        <SnackbarProvider>
+          <CssBaseline />
+          <BrowserRouter>
+            <NavBar></NavBar>
+            <Box paddingTop={'70px'}>
+              <RouterBreadcrumbs />
+              <AppRouter></AppRouter>
+            </Box>
+          </BrowserRouter>
+        </SnackbarProvider>
+      </MuiThemeProvider>
 
     </div>
   );

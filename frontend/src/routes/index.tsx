@@ -21,12 +21,16 @@ const routes: MyRouteProps[] = [
     
     { name: 'cast_members.list', label: 'Listar Membros Do Elenco', path: '/cast_members', component: CastMembersList, exact: true },
     { name: 'cast_members.create', label: 'Criar Membros Do Elenco', path: '/cast_members/create', component: CastMembersForm, exact: true },
-    
+    { name: 'cast_members.edit', label: 'Editar Membros Do Elenco', path: '/cast_members/:id/edit', component: CastMembersForm, exact: true },
+
     { name: 'categories.list', label: 'Listar Categorias', path: '/categories', component: CategoryList, exact: true },
     { name: 'categories.create', label: 'Criar Categorias', path: '/categories/create', component: CategoryForm, exact: true },
-    
+    { name: 'categories.edit', label: 'Editar categoria', path: '/categories/:id/edit', component: CategoryForm, exact: true },
+
     { name: 'genres.list', label: 'Listar Gêneros', path: '/genres', component: GenresList, exact: true },
     { name: 'genres.create', label: 'Criar Gêneros', path: '/genres/create', component: GenreForm, exact: true },
+    { name: 'genres.edit', label: 'Editar Gêneros', path: '/genres/:id/edit', component: GenreForm, exact: true },
+
 ];
 
 export default routes;
