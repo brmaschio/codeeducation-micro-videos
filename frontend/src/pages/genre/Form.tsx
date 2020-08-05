@@ -1,185 +1,175 @@
-import React, { useState, useEffect } from 'react';
+import * as React from 'react';
+import { useEffect, useState } from "react";
+import { useParams } from 'react-router';
+import { useHistory } from 'react-router-dom';
+
 import { useForm } from "react-hook-form";
-import { ButtonProps, TextField, Checkbox, Box, Button, makeStyles, Theme, MenuItem, FormControlLabel } from '@material-ui/core';
-import genreHttp from '../../util/http/genre-http';
-import categoryHttp from '../../util/http/category-http';
-import { useParams, useHistory } from 'react-router-dom';
 import { useSnackbar } from "notistack";
 
-import * as yup from '../../util/vendor/yup';
+import { TextField } from "@material-ui/core";
+import MenuItem from "@material-ui/core/MenuItem";
 
-const useStyles = makeStyles((theme: Theme) => {
-    return {
-        submit: {
-            margin: theme.spacing(1)
-        }
-    }
-});
+import categoryHttp from "../../util/http/category-http";
+import genreHttp from "../../util/http/genre-http";
+import { Category, simpleResponse } from "../../util/models";
+import { Genre } from "../../util/models";
+import * as yup from '../../util/vendor/yup';
+import SubmitActions from "../../components/SubmitActions";
 
 const validationSchema = yup.object().shape({
     name: yup.string().label('Nome').required().max(255),
     categories_id: yup.array().label("Categorias").required()
 });
 
-const Form = () => {
+export default function Form() {
 
-    const classes = useStyles();
-
-    const { enqueueSnackbar }  = useSnackbar();
-    const { id } = useParams();
-    const history = useHistory();
-    const [genre, setGenre] = useState<{ id: string } | null>(null);
-    const [loading, setLoading] = useState(false);
-
-    const buttonProps: ButtonProps = {
-        className: classes.submit,
-        variant: 'contained',
-        color: 'secondary'
-    }
-
-    const [categories, setCategories] = useState([]);
-
-    const { register, handleSubmit, getValues, watch, setValue, reset, errors } = useForm({
-        
-        // AGUARDANDO AJUDA DO FORUM
-        // validationSchema,
-        
+    const { register, handleSubmit, getValues, setValue, watch, reset, errors, triggerValidation } = useForm({
         defaultValues: {
-            is_active: true,
             categories_id: []
-        }
+        },
+        validationSchema
     });
 
-    function onSubmit(formData, event) {
-
-        setLoading(true);
-
-        const http = !genre
-            ? genreHttp.create(formData)
-            : genreHttp.update(genre.id, formData);
-
-        http.then(({ data }) => {
-
-            enqueueSnackbar('Salvo com sucesso!', { variant: "success" });
-
-            setTimeout(() => {
-
-                console.log(data.data);
-
-                event ? (id
-                    ? history.replace(`/genres/${data.data.id}/edit`)
-                    : history.push(`/genres/${data.data.id}/edit`)
-                )
-                    : history.push('/genres');
-
-            })
-        }).catch(error => { 
-            console.log(error)
-            enqueueSnackbar('Erro Ao Processar Serviço Remoto', {variant: "error"});
-        }).finally(() => setLoading(false));
-
-    }
+    const { enqueueSnackbar } = useSnackbar();
+    const history = useHistory();
+    const { id } = useParams();
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [genre, setGenre] = useState<Genre | null>(null);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-
-        categoryHttp.list().then(response => {
-            setCategories(response.data.data);
-        }).catch(error => { 
-            console.log(error)
-            enqueueSnackbar('Erro Ao Processar Serviço Remoto', {variant: "error"});
+        register({
+            name: 'categories_id'
         });
-
-    }, [enqueueSnackbar]);
-
-    useEffect(() => {
-
-        register({ name: 'categories_id' });
-        register({ name: 'is_active' });
-
-    }, [register])
+    }, [register]);
 
     useEffect(() => {
 
-        if (!id) {
-            return;
-        }
+        let isSubscribed = true;
 
-        setLoading(true);
+        (async () => {
+            setLoading(true);
 
-        genreHttp.get(id).then(({ data }) => {
-            console.log(data.data);
+            const promises = [categoryHttp.list({ queryParams: { all: '' } })];
 
-            setGenre(data.data);
-            const categories_id = data.data.categories.map(category => category.id);
-            reset({ ...data.data, categories_id })
+            if (id) {
+                promises.push(genreHttp.get(id));
+            }
 
-        }).catch(error => { 
-            console.log(error)
-            enqueueSnackbar('Erro Ao Processar Serviço Remoto', {variant: "error"});
-        }).finally(() => setLoading(false));
+            try {
+                const [categoriesResponse, genreResponse] = await Promise.all(promises);
+
+                if (isSubscribed) {
+                    setCategories(categoriesResponse.data.data);
+
+                    if (id) {
+                        setGenre(genreResponse.data.data);
+                        const categories_id = genreResponse.data.data.categories.map(category => category.id);
+                        reset({
+                            ...genreResponse.data.data,
+                            categories_id
+                        });
+                    }
+                }
+
+            } catch (e) {
+                console.log(e);
+                enqueueSnackbar("Não foi possível carregar as informações", { variant: "error" });
+            } finally {
+                setLoading(false);
+            }
+        })();
+
+
+        return () => { isSubscribed = false }
 
     }, [id, reset, enqueueSnackbar]);
 
+
+    const handleCategoriesChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+        setValue('categories_id', event.target.value as Array<any>);
+    };
+
+    async function onSubmit(formData, event) {
+        setLoading(true);
+
+        try {
+            const http = !genre
+                ? genreHttp.create<simpleResponse<Genre>>(formData)
+                : genreHttp.update<simpleResponse<Genre>>(genre.id, formData);
+
+            const { data } = await http;
+            enqueueSnackbar("Gênero salvo com sucesso!", { variant: "success" });
+            setLoading(false);
+
+            event
+                ? (
+                    id
+                        ? history.replace(`/genres/${data.data.id}/edit`)
+                        : history.push(`/genres/${data.data.id}/edit`)
+                )
+                : history.push('/genres');
+        } catch (e) {
+            console.log(e);
+            enqueueSnackbar("Não foi possível salvar o gênero", { variant: "error" });
+            setLoading(false);
+
+        }
+
+    }
+
+    function validateSubmit() {
+        triggerValidation()
+            .then(isValid => { isValid && onSubmit(getValues(), null) });
+    }
+
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
-
             <TextField
-                inputRef={register}
-                name="name"
-                label="Nome"
-                fullWidth
+                name={"name"}
+                label={"Nome"}
                 variant={"outlined"}
+                fullWidth
+                inputRef={register}
+                disabled={loading}
+                InputLabelProps={{ shrink: true }}
                 error={(errors as any).name !== undefined}
                 helperText={(errors as any).name && (errors as any).name.message}
-                InputLabelProps={{ shrink: true }}
-                disabled={loading}
+
             />
 
             <TextField
                 select
-                name="categories_id"
+                name={"categories_id"}
                 value={watch('categories_id')}
                 label={"Categorias"}
                 variant={"outlined"}
                 margin={"normal"}
                 fullWidth
-                onChange={event => setValue(event.target.name, event.target.value)}
-                SelectProps={{ multiple: true }}
+                onChange={handleCategoriesChange}
+                SelectProps={{
+                    multiple: true
+                }}
                 InputLabelProps={{ shrink: true }}
                 disabled={loading}
                 error={(errors as any).categories_id !== undefined}
                 helperText={(errors as any).categories_id && (errors as any).categories_id.message}
             >
                 <MenuItem value="" disabled>
-                    <em>Categorias</em>
+                    <em>Selecione categorias</em>
                 </MenuItem>
-
-                {categories.map((value: any, key) => (
-                    <MenuItem key={key} value={value.id}>{value.name}</MenuItem>
-                ))}
+                <hr />
+                {
+                    categories.map(
+                        (category, key) => (
+                            <MenuItem key={key} value={category.id}>{category.name}</MenuItem>
+                        )
+                    )
+                }
 
             </TextField>
 
-
-            <FormControlLabel control={
-                <Checkbox
-                    name={"is_active"}
-                    checked={watch('is_active')}
-                    onChange={() => setValue('is_active', !getValues()['is_active'])}
-                />
-            }
-                label="Ativo?"
-                labelPlacement={'end'}
-                disabled={loading}
-            />
-
-            <Box dir={"rtl"}>
-                <Button onClick={() => onSubmit(getValues(), null)} {...buttonProps} >Salvar</Button>
-                <Button type="submit" {...buttonProps} >Salvar e Continuar</Button>
-            </Box>
-
+            <SubmitActions disabledButtons={loading} handleSave={validateSubmit} />
         </form>
     );
 };
-
-export default Form;
