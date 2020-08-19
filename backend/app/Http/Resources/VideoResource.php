@@ -21,6 +21,7 @@ class VideoResource extends JsonResource
             'tumb_file_url' => $this->tumb_file_url,
             'banner_file_url' => $this->banner_file_url,
             'trailer_file_url' => $this->trailer_file_url,
+            'cast_members' => CastMemberResource::collection($this->castMembers),
         ];
     }
 }

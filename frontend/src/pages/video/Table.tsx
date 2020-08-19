@@ -3,21 +3,20 @@ import { useEffect, useRef, useState } from 'react';
 
 import { Link } from "react-router-dom";
 
-import IconButton from "@material-ui/core/IconButton/IconButton";
 import EditIcon from "@material-ui/icons/Edit";
+import IconButton from "@material-ui/core/IconButton/IconButton";
 
-import format from "date-fns/format";
-import parseISO from "date-fns/parseISO";
 import { useSnackbar } from "notistack";
+import { format, parseISO } from "date-fns";
 
-import DefaultTable, { MuiDataTableRefComponent, TableColumn } from "../../components/Table";
-import { BadgeNo, BadgeYes } from "../../components/Badge";
 import FilterResetButton from "../../components/Table/FilterResetButton";
-import genreHttp from "../../util/http/genre-http";
-import { Category, Genre, listResponse } from "../../util/models";
+import DefaultTable, { MuiDataTableRefComponent, TableColumn } from "../../components/Table";
+import { Category, listResponse, Video } from "../../util/models";
+import videoHttp from "../../util/http/video-http";
 import categoryHttp from "../../util/http/category-http";
-import * as yup from "../../util/vendor/yup";
 import useFilter from "../../hooks/useFilter";
+
+import * as yup from "../../util/vendor/yup";
 
 const columnsDefinitions: TableColumn[] = [
     {
@@ -26,21 +25,36 @@ const columnsDefinitions: TableColumn[] = [
         width: '30%',
         options: {
             sort: false,
-            filter: false
+            filter: false,
         }
     },
     {
-        name: "name",
-        label: "Nome",
+        name: "title",
+        label: "Titulo",
+        width: '20%',
         options: {
-            filter: false
+            filter: false,
+        }
+    },
+    {
+        name: "genres",
+        label: "Gẽneros",
+        width: '13%',
+        options: {
+            filter: false,
+            customBodyRender(value, tableMeta, updateValue) {
+                return <span> {
+                    value.map((value: { name: any; }) => value.name).join(', ')
+                } </span>
+            },
         }
     },
     {
         name: "categories",
         label: "Categorias",
+        width: '12%',
         options: {
-            filterType: "multiselect",
+            filterType: 'multiselect',
             filterOptions: {
                 names: []
             },
@@ -52,24 +66,12 @@ const columnsDefinitions: TableColumn[] = [
         }
     },
     {
-        name: "is_active",
-        label: "Ativo?",
-        options: {
-            filterOptions: {
-                names: ['Sim', 'Nāo']
-            },
-            customBodyRender(value, tableMeta, updateValue) {
-                return value ? <BadgeYes /> : <BadgeNo />
-            }
-        }
-    },
-    {
         name: "created_at",
         label: "Criado em",
+        width: '10%',
         options: {
             filter: false,
             customBodyRender(value, tableMeta, updateValue) {
-
                 return <span> {
                     format(parseISO(value), 'dd/MM/yyyy')
                 } </span>
@@ -88,14 +90,13 @@ const columnsDefinitions: TableColumn[] = [
                     <IconButton
                         color={"secondary"}
                         component={Link}
-                        to={`/genres/${tableMeta.rowData[0]}/edit`}>
+                        to={`/videos/${tableMeta.rowData[0]}/edit`}>
                         <EditIcon />
                     </IconButton>
                 )
             }
         }
     }
-
 ];
 
 const debounceTime = 300;
@@ -103,15 +104,16 @@ const debouncedSearchTime = 300;
 const rowsPerPage = 15;
 const rowsPerPageOptions = [15, 25, 50];
 
-export const Table = () => {
+
+const Table = () => {
 
     const { enqueueSnackbar } = useSnackbar();
-    const [data, setData] = useState<Genre[]>([]);
+    const [data, setData] = useState<Video[]>([]);
     const subscribed = useRef(true);
-    const [loading, setLoading] = useState<boolean>(false);
     const tableRef = useRef() as React.MutableRefObject<MuiDataTableRefComponent>;
+    const [loading, setLoading] = useState<boolean>(false);
     // eslint-disable-next-line
-    const [categories, setCategories] = useState<Category[]>([]);
+    const [categories, setCategories] = useState<Category[]>();
 
     const {
         columns,
@@ -119,7 +121,7 @@ export const Table = () => {
         filterState,
         debouncedFilterState,
         totalRecords,
-        setTotalRecords,
+        setTotalRecords
     } = useFilter({
         columns: columnsDefinitions,
         rowsPerPage: rowsPerPage,
@@ -166,7 +168,6 @@ export const Table = () => {
         serverSideFilterList[indexColumnCategories] = categoriesFilterValue;
     }
 
-
     useEffect(() => {
         subscribed.current = true;
 
@@ -187,7 +188,6 @@ export const Table = () => {
                 enqueueSnackbar("Não foi possível carregar as informações", { variant: "error" });
             }
 
-
         })();
 
         return () => {
@@ -202,8 +202,9 @@ export const Table = () => {
         subscribed.current = true;
         getData();
         filterManager.pushHistory();
+
         return () => {
-            subscribed.current = false;
+            subscribed.current = false
         }
         // eslint-disable-next-line
     }, [
@@ -219,8 +220,7 @@ export const Table = () => {
         setLoading(true);
 
         try {
-
-            const { data } = await genreHttp.list<listResponse<Genre>>({
+            const { data } = await videoHttp.list<listResponse<Video>>({
                 queryParams: {
                     search: filterManager.clearSearchText(debouncedFilterState.search),
                     page: debouncedFilterState.pagination.page,
@@ -242,7 +242,7 @@ export const Table = () => {
 
         } catch (e) {
             console.log(e);
-            if (genreHttp.isCancelledRequest(e)) {
+            if (videoHttp.isCancelledRequest(e)) {
                 return;
             }
             enqueueSnackbar("Não foi possível carregar as informações", { variant: "error" });
@@ -251,13 +251,14 @@ export const Table = () => {
         }
     }
 
+
     return (
         <DefaultTable
-            title={"Gêneros"}
-            columns={filterManager.columns}
+            title={"Videos"}
             data={data}
-            loading={loading}
+            columns={columns}
             debouncedSearchTime={debouncedSearchTime}
+            loading={loading}
             ref={tableRef}
             options={{
                 serverSide: true,
@@ -288,6 +289,7 @@ export const Table = () => {
                 onColumnSortChange: (changedColumn: string, direction: string) => filterManager.changeSort(changedColumn, direction)
             }}
         />
+
     );
 };
 

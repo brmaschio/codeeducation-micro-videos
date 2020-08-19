@@ -87,10 +87,10 @@ export default function Form() {
                 ?
                 (
                     id
-                        ? history.replace(`/cast-members/${data.data.id}/edit`)
-                        : history.push(`/cast-members/${data.data.id}/edit`)
+                        ? history.replace(`/cast_members/${data.data.id}/edit`)
+                        : history.push(`/cast_members/${data.data.id}/edit`)
                 )
-                : history.push("/cast-members");
+                : history.push("/cast_members");
         } catch (e) {
             enqueueSnackbar("Não foi possível salvar Membro de elenco!", { variant: "error" });
             setLoading(false);

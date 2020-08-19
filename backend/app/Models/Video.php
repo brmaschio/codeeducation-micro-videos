@@ -43,6 +43,9 @@ class Video extends Model
     ];
 
     public $incrementing = false;
+
+    protected $hidden = ['video_file', 'thumb_file', 'trailer_file', 'banner_file'];
+
     public static $fileField = [
         'video_file', 'tumb_file', 'banner_file', 'trailer_file'
     ];
@@ -102,6 +105,9 @@ class Video extends Model
         if (isset($attributes['genres_id'])) {
             $video->genres()->sync($attributes['genres_id']);
         }
+        if (isset($attributes['cast_members_id'])) {
+            $video->castMembers()->sync($attributes['cast_members_id']);
+        }
     }
 
     public function categories()
@@ -112,6 +118,11 @@ class Video extends Model
     public function genres()
     {
         return $this->belongsToMany(Genre::class)->withTrashed();
+    }
+
+    public function castMembers()
+    {
+        return $this->belongsToMany(CastMember::class)->withTrashed();
     }
 
     protected function uploadDir()

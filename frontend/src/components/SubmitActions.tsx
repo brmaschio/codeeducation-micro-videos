@@ -1,4 +1,5 @@
 import * as React from 'react';
+
 import { Button, ButtonProps, Theme } from "@material-ui/core";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import Box from "@material-ui/core/Box";
@@ -17,7 +18,6 @@ interface SubmitActionsProps {
 }
 
 const SubmitActions: React.FC<SubmitActionsProps> = (props) => {
-    
     const classes = useStyles();
 
     const buttonProps: ButtonProps = {

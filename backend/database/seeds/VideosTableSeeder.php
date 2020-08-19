@@ -9,11 +9,15 @@ use Illuminate\Http\UploadedFile;
 
 class VideosTableSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
+
+    private $allGenres = [];
+    private $allCastMembers = [];
+    private $relations = [
+        'categories_id' => [],
+        'genres_id' => [],
+        'cast_members_id' => []
+    ];
+
     public function run()
     {
 
@@ -22,9 +26,9 @@ class VideosTableSeeder extends Seeder
 
         $self = $this;
         $this->allGenres = Genre::all();
+        $this->allCastMembers = CastMember::all();
 
         Model::reguard();
-
 
         factory(Video::class, 100)->make()->each(function (Video $video) use ($self) {
             $self->fetchRelations();
@@ -46,21 +50,20 @@ class VideosTableSeeder extends Seeder
     public function fetchRelations()
     {
 
-        $subGenres = $this->allGenres->random(5)->load('categories');
+        $subGenres = $this->allGenres->random(2)->load('categories');
         $categoriesId = [];
 
         foreach ($subGenres as $genre) {
-
             array_push($categoriesId, ...$genre->categories->pluck('id')->toArray());
         }
 
         $categoriesId = array_unique($categoriesId);
-
         $genresId = $subGenres->pluck('id')->toArray();
 
         $this->relations['categories_id'] = $categoriesId;
-
         $this->relations['genres_id'] = $genresId;
+        $this->relations['cast_members_id'] = $this->allCastMembers->random(3)->pluck('id')->toArray();
+
     }
 
     public function getImageFile()

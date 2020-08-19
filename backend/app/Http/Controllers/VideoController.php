@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\VideoResource;
 use App\Models\Video;
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\Builder;
 
 class VideoController extends BasicCrudController
 {
@@ -19,6 +20,7 @@ class VideoController extends BasicCrudController
             'opened' => 'boolean',
             'rating' => 'required||in:' . implode(',', Video::RATING_LIST),
             'duration' => 'required||integer',
+            'cast_members_id' => ['required', 'array', 'exists:cast_members,id,deleted_at,NULL'],
             'categories_id' => 'required|array|exists:categories,id,deleted_at,NULL',
             'genres_id' => 'required|array|exists:genres,id,deleted_at,NULL',
             'video_file' => 'file|mimetypes:video/mp4|max:' . Video::VIDEO_FILE_MAX_SIZE,
@@ -69,5 +71,10 @@ class VideoController extends BasicCrudController
     protected function resource()
     {
         return VideoResource::class;
+    }
+
+    protected function queryBuilder(): Builder
+    {
+        return parent::queryBuilder()->with('genres.categories');
     }
 }

@@ -63,8 +63,11 @@ export default function Form() {
                     setCategories(categoriesResponse.data.data);
 
                     if (id) {
+                        
                         setGenre(genreResponse.data.data);
+                        
                         const categories_id = genreResponse.data.data.categories.map(category => category.id);
+                        
                         reset({
                             ...genreResponse.data.data,
                             categories_id

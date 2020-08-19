@@ -1,15 +1,19 @@
 import * as React from 'react';
-import {useEffect, useRef, useState} from 'react';
+import { useEffect, useRef, useState } from 'react';
 
+import { Link } from "react-router-dom";
 import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
-import {useSnackbar} from "notistack";
-import {invert} from 'lodash';
+import { useSnackbar } from "notistack";
+import { invert } from 'lodash';
+
+import IconButton from "@material-ui/core/IconButton/IconButton";
+import EditIcon from "@material-ui/icons/Edit";
 
 import castMemberHttp from "../../util/http/cast-member-http";
 import * as yup from '../../util/vendor/yup';
-import {CastMember, listResponse, CastMemberTypeMap} from "../../util/models";
-import DefaultTable, {MuiDataTableRefComponent, TableColumn} from "../../components/Table";
+import { CastMember, listResponse, CastMemberTypeMap } from "../../util/models";
+import DefaultTable, { MuiDataTableRefComponent, TableColumn } from "../../components/Table";
 import FilterResetButton from "../../components/Table/FilterResetButton";
 import useFilter from "../../hooks/useFilter";
 
@@ -55,6 +59,25 @@ const columnsDefinitions: TableColumn[] = [
                 } </span>
             }
         }
+    },
+    {
+        name: "actions",
+        label: "Ações",
+        width: '13%',
+        options: {
+            sort: false,
+            filter: false,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <IconButton
+                        color={"secondary"}
+                        component={Link}
+                        to={`/cast_members/${tableMeta.rowData[0]}/edit`}>
+                        <EditIcon />
+                    </IconButton>
+                )
+            }
+        }
     }
 
 
@@ -67,7 +90,7 @@ const rowsPerPageOptions = [15, 25, 50];
 
 const Table = () => {
 
-    const {enqueueSnackbar} = useSnackbar();
+    const { enqueueSnackbar } = useSnackbar();
     const subscribed = useRef(false);
     const [data, setData] = useState<CastMember[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
@@ -101,7 +124,7 @@ const Table = () => {
             formatSearchParams: () => {
                 return debouncedFilterState.extraFilter ? {
                     ...(debouncedFilterState.extraFilter.type &&
-                        {type: debouncedFilterState.extraFilter.type}
+                        { type: debouncedFilterState.extraFilter.type }
                     )
                 } : undefined
             },
@@ -149,7 +172,7 @@ const Table = () => {
         setLoading(true);
 
         try {
-            const {data} = await castMemberHttp.list<listResponse<CastMember>>({
+            const { data } = await castMemberHttp.list<listResponse<CastMember>>({
                 queryParams: {
                     search: filterManager.clearSearchText(debouncedFilterState.search),
                     page: debouncedFilterState.pagination.page,
@@ -159,8 +182,8 @@ const Table = () => {
                     ...(
                         debouncedFilterState.extraFilter &&
                         debouncedFilterState.extraFilter.type &&
-                        //inverte para pegar o mapa pelo valor e nao pela chave
-                        {type: invert(CastMemberTypeMap)[debouncedFilterState.extraFilter.type]}
+
+                        { type: invert(CastMemberTypeMap)[debouncedFilterState.extraFilter.type] }
                     )
                 }
             });
@@ -178,7 +201,7 @@ const Table = () => {
                 return;
             }
 
-            enqueueSnackbar("Não foi possível carregar as informações", {variant: "error"});
+            enqueueSnackbar("Não foi possível carregar as informações", { variant: "error" });
         } finally {
             setLoading(false);
         }
@@ -201,7 +224,7 @@ const Table = () => {
                 rowsPerPageOptions: rowsPerPageOptions,
                 count: totalRecords,
                 customToolbar: () => {
-                    return <FilterResetButton handleClick={() => filterManager.resetFilter()}/>
+                    return <FilterResetButton handleClick={() => filterManager.resetFilter()} />
                 },
                 onFilterChange: (column, filterList, type) => {
 

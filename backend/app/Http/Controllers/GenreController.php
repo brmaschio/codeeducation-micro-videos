@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\GenreResource;
 use App\Models\Genre;
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\Builder;
 
 class GenreController extends BasicCrudController
 // class GenreController extends Controller
@@ -19,7 +20,7 @@ class GenreController extends BasicCrudController
     public function store(Request $request)
     {
         $validatedData = $this->validate($request, $this->rulesStore());
-        
+
         $self = $this;
 
         $obj = \DB::transaction(function () use($request, $validatedData, $self) {
@@ -27,7 +28,7 @@ class GenreController extends BasicCrudController
             $self->handleRelarions($obj, $request);
             return $obj;
         });
-        
+
         $obj->refresh();
         $resource = $this->resource();
         return new $resource($obj);
@@ -37,7 +38,7 @@ class GenreController extends BasicCrudController
     {
         $obj = $this->findOrFail($id);
         $validatedData = $this->validate($request, $this->rulesUpdate());
-        
+
         $self = $this;
 
         $obj = \DB::transaction(function () use($request, $validatedData, $self, $obj) {
@@ -46,7 +47,7 @@ class GenreController extends BasicCrudController
             $resource = $this->resource();
             return new $resource($obj);
         });
-        
+
         return $obj;
     }
 
@@ -77,6 +78,11 @@ class GenreController extends BasicCrudController
     protected function resource()
     {
         return GenreResource::class;
+    }
+
+    protected function queryBuilder(): Builder
+    {
+        return parent::queryBuilder()->with('categories');
     }
 
 }

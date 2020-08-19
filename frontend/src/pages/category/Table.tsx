@@ -1,6 +1,11 @@
 import * as React from 'react';
 import { useEffect, useRef, useState } from 'react';
 
+import { Link } from 'react-router-dom';
+
+import EditIcon from '@material-ui/icons/Edit';
+import IconButton from '@material-ui/core/IconButton/IconButton';
+
 import format from 'date-fns/format';
 import parseISO from 'date-fns/parseISO';
 import { useSnackbar } from "notistack";
@@ -57,12 +62,23 @@ const columnsDefinitions: TableColumn[] = [
         width: '10%'
     },
     {
-        name: 'actions',
+        name: "actions",
         label: "Ações",
         width: '13%',
         options: {
+            sort: false,
             filter: false,
-            sort: false
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <IconButton
+                        color={"secondary"}
+                        component={Link}
+                        to={`/categories/${tableMeta.rowData[0]}/edit`}>
+
+                        <EditIcon />
+                    </IconButton>
+                )
+            }
         }
     }
 ];
