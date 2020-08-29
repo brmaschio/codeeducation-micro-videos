@@ -1,7 +1,9 @@
 import * as React from 'react';
-import { RefAttributes, useState, useEffect, useImperativeHandle } from "react";
+import { RefAttributes, useState, useEffect, useImperativeHandle, useContext } from "react";
 
 import { useDebounce } from "use-debounce";
+
+import LoadingContext from "./Loading/LoadingContext";
 
 import { Autocomplete, AutocompleteProps, UseAutocompleteSingleProps } from "@material-ui/lab";
 import { TextFieldProps } from "@material-ui/core";
@@ -27,7 +29,7 @@ export const AsyncAutoComplete = React.forwardRef<AsyncAutoCompleteComponent, As
     const [open, setOpen] = useState<boolean>(false);
     const [searchText, setSearchText] = useState<string>("");
     const [debouncedSearchText] = useDebounce<string>(searchText, debounceTime);
-    const [loading, setLoading] = useState<boolean>(false);
+    const loading = useContext(LoadingContext);
     const [options, setOptions] = useState([]);
 
     const textFieldProps: TextFieldProps = {
@@ -48,14 +50,17 @@ export const AsyncAutoComplete = React.forwardRef<AsyncAutoCompleteComponent, As
         loading: loading,
         onOpen() {
             setOpen(true);
+
             onOpen && onOpen();
         },
         onClose() {
             setOpen(false);
+
             onClose && onClose();
         },
         onInputChange(event, value) {
             setSearchText(value);
+
             onInputChange && onInputChange();
         },
         renderInput: params => (
@@ -79,31 +84,31 @@ export const AsyncAutoComplete = React.forwardRef<AsyncAutoCompleteComponent, As
         if (!open && !freeSolo) {
             setOptions([])
         }
-        // eslint-disable-next-line
     }, [open]);
 
     const deps = freeSolo ? debouncedSearchText : open;
     useEffect(() => {
         let isSubscribed = true;
+
         if (!open || (debouncedSearchText === "" && freeSolo)) {
             return
         }
 
         (async () => {
-            setLoading(true);
             try {
                 const data = await props.fetchOptions(debouncedSearchText);
+
                 if (isSubscribed) {
                     setOptions(data);
                 }
-            } finally {
-                setLoading(false);
+            } catch (e) {
+
             }
         })();
         return () => {
             isSubscribed = false
         }
-        // eslint-disable-next-line
+
     }, [deps]);
 
 

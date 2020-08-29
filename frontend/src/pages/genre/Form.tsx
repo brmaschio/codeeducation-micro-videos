@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { useParams } from 'react-router';
 import { useHistory } from 'react-router-dom';
 
@@ -15,6 +15,7 @@ import { Category, simpleResponse } from "../../util/models";
 import { Genre } from "../../util/models";
 import * as yup from '../../util/vendor/yup';
 import SubmitActions from "../../components/SubmitActions";
+import LoadingContext from "../../components/Loading/LoadingContext";
 
 const validationSchema = yup.object().shape({
     name: yup.string().label('Nome').required().max(255),
@@ -35,7 +36,7 @@ export default function Form() {
     const { id } = useParams();
     const [categories, setCategories] = useState<Category[]>([]);
     const [genre, setGenre] = useState<Genre | null>(null);
-    const [loading, setLoading] = useState(false);
+    const loading = useContext(LoadingContext);
 
     useEffect(() => {
         register({
@@ -48,7 +49,6 @@ export default function Form() {
         let isSubscribed = true;
 
         (async () => {
-            setLoading(true);
 
             const promises = [categoryHttp.list({ queryParams: { all: '' } })];
 
@@ -76,11 +76,9 @@ export default function Form() {
                 }
 
             } catch (e) {
-                console.log(e);
                 enqueueSnackbar("Não foi possível carregar as informações", { variant: "error" });
-            } finally {
-                setLoading(false);
             }
+
         })();
 
 
@@ -94,7 +92,6 @@ export default function Form() {
     };
 
     async function onSubmit(formData, event) {
-        setLoading(true);
 
         try {
             const http = !genre
@@ -103,7 +100,6 @@ export default function Form() {
 
             const { data } = await http;
             enqueueSnackbar("Gênero salvo com sucesso!", { variant: "success" });
-            setLoading(false);
 
             event
                 ? (
@@ -113,9 +109,7 @@ export default function Form() {
                 )
                 : history.push('/genres');
         } catch (e) {
-            console.log(e);
             enqueueSnackbar("Não foi possível salvar o gênero", { variant: "error" });
-            setLoading(false);
 
         }
 

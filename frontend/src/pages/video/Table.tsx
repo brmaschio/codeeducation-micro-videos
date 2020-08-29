@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useContext } from 'react';
 
 import { Link } from "react-router-dom";
 
@@ -9,11 +9,14 @@ import IconButton from "@material-ui/core/IconButton/IconButton";
 import { useSnackbar } from "notistack";
 import { format, parseISO } from "date-fns";
 
+import { DeleteDialog } from "../../components/DeleteDialog";
 import FilterResetButton from "../../components/Table/FilterResetButton";
+import LoadingContext from "../../components/Loading/LoadingContext";
 import DefaultTable, { MuiDataTableRefComponent, TableColumn } from "../../components/Table";
 import { Category, listResponse, Video } from "../../util/models";
 import videoHttp from "../../util/http/video-http";
 import categoryHttp from "../../util/http/category-http";
+import useDeleteCollection from "../../hooks/useDeleteCollection";
 import useFilter from "../../hooks/useFilter";
 
 import * as yup from "../../util/vendor/yup";
@@ -111,9 +114,9 @@ const Table = () => {
     const [data, setData] = useState<Video[]>([]);
     const subscribed = useRef(true);
     const tableRef = useRef() as React.MutableRefObject<MuiDataTableRefComponent>;
-    const [loading, setLoading] = useState<boolean>(false);
-    // eslint-disable-next-line
+    const loading = useContext(LoadingContext);
     const [categories, setCategories] = useState<Category[]>();
+    const { openDeleteDialog, setOpenDeleteDialog, rowsToDelete, setRowsToDelete } = useDeleteCollection();
 
     const {
         columns,
@@ -181,7 +184,6 @@ const Table = () => {
                     (columnCategories.options as any).filterOptions.names = data.data.map(category => category.name);
                 }
             } catch (e) {
-                console.log(e);
                 if (categoryHttp.isCancelledRequest(e)) {
                     return;
                 }
@@ -193,7 +195,6 @@ const Table = () => {
         return () => {
             subscribed.current = false
         }
-        // eslint-disable-next-line
     }, [enqueueSnackbar]);
 
     const filteredSearch = filterManager.clearSearchText(debouncedFilterState.search);
@@ -206,18 +207,16 @@ const Table = () => {
         return () => {
             subscribed.current = false
         }
-        // eslint-disable-next-line
+
     }, [
         filteredSearch,
         debouncedFilterState.pagination.page,
         debouncedFilterState.pagination.per_page,
         debouncedFilterState.order,
-        // eslint-disable-next-line
         JSON.stringify(debouncedFilterState.extraFilter)
     ]);
 
     async function getData() {
-        setLoading(true);
 
         try {
             const { data } = await videoHttp.list<listResponse<Video>>({
@@ -241,55 +240,91 @@ const Table = () => {
             }
 
         } catch (e) {
-            console.log(e);
             if (videoHttp.isCancelledRequest(e)) {
                 return;
             }
             enqueueSnackbar("Não foi possível carregar as informações", { variant: "error" });
-        } finally {
-            setLoading(false);
         }
+
+    }
+
+    async function deleteRows(confirmed: boolean) {
+        if (!confirmed) {
+            setOpenDeleteDialog(false);
+            return;
+        }
+
+        try {
+            const ids = rowsToDelete.data.map(value => data[value.index].id).join(',');
+
+            await videoHttp.deleteCollection({ ids });
+
+            if (
+                rowsToDelete.data.length === debouncedFilterState.pagination.per_page &&
+                debouncedFilterState.pagination.page > 1
+            ) {
+                const page = debouncedFilterState.pagination.page - 2;
+                filterManager.changePage(page);
+            } else {
+                await getData();
+            }
+
+
+            setOpenDeleteDialog(false);
+
+            enqueueSnackbar("Registros excluidos com sucesso!", { variant: "success" });
+
+        } catch (e) {
+            enqueueSnackbar("Não foi possível excluir os registros", { variant: "error" });
+        }
+
     }
 
 
     return (
-        <DefaultTable
-            title={"Videos"}
-            data={data}
-            columns={columns}
-            debouncedSearchTime={debouncedSearchTime}
-            loading={loading}
-            ref={tableRef}
-            options={{
-                serverSide: true,
-                searchText: filterState.search as any,
-                page: filterState.pagination.page - 1,
-                rowsPerPage: rowsPerPage,
-                rowsPerPageOptions: rowsPerPageOptions,
-                count: totalRecords,
-                customToolbar: () => {
-                    return <FilterResetButton handleClick={() => filterManager.resetFilter()} />
-                },
-                onFilterChange: (column, filterList, type) => {
+        <React.Fragment>
+            <DeleteDialog open={openDeleteDialog} handleClose={deleteRows} />
+            <DefaultTable
+                title={"Videos"}
+                data={data}
+                columns={columns}
+                debouncedSearchTime={debouncedSearchTime}
+                loading={loading}
+                ref={tableRef}
+                options={{
+                    serverSide: true,
+                    searchText: filterState.search as any,
+                    page: filterState.pagination.page - 1,
+                    rowsPerPage: rowsPerPage,
+                    rowsPerPageOptions: rowsPerPageOptions,
+                    count: totalRecords,
+                    customToolbar: () => {
+                        return <FilterResetButton handleClick={() => filterManager.resetFilter()} />
+                    },
+                    onFilterChange: (column, filterList, type) => {
 
-                    const columnIndex = columns.findIndex(c => c.name === column);
+                        const columnIndex = columns.findIndex(c => c.name === column);
 
-                    if (columnIndex && filterList[columnIndex]) {
-                        filterManager.changeExtraFilter({
-                            [column]: filterList[columnIndex].length ? filterList[columnIndex] : null
-                        })
-                    } else {
-                        filterManager.clearExtraFilter();
+                        if (columnIndex && filterList[columnIndex]) {
+                            filterManager.changeExtraFilter({
+                                [column]: filterList[columnIndex].length ? filterList[columnIndex] : null
+                            })
+                        } else {
+                            filterManager.clearExtraFilter();
+                        }
+
+                    },
+                    onSearchChange: (value) => filterManager.changeSearch(value),
+                    onChangePage: (page) => filterManager.changePage(page),
+                    onChangeRowsPerPage: (per_page) => filterManager.changeRowsPerPage(per_page),
+                    onColumnSortChange: (changedColumn: string, direction: string) => filterManager.changeSort(changedColumn, direction),
+                    onRowsDelete: (rowsDeleted) => {
+                        setRowsToDelete(rowsDeleted as any);
+                        return false;
                     }
-
-                },
-                onSearchChange: (value) => filterManager.changeSearch(value),
-                onChangePage: (page) => filterManager.changePage(page),
-                onChangeRowsPerPage: (per_page) => filterManager.changeRowsPerPage(per_page),
-                onColumnSortChange: (changedColumn: string, direction: string) => filterManager.changeSort(changedColumn, direction)
-            }}
-        />
-
+                }}
+            />
+        </React.Fragment>
     );
 };
 

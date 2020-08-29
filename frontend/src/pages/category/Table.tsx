@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 
 import { Link } from 'react-router-dom';
 
@@ -15,6 +15,7 @@ import { Category, listResponse } from "../../util/models";
 import { BadgeNo, BadgeYes } from "../../components/Badge";
 import DefaultTable, { MuiDataTableRefComponent, TableColumn } from '../../components/Table';
 import FilterResetButton from "../../components/Table/FilterResetButton";
+import LoadingContext from "../../components/Loading/LoadingContext";
 import useFilter from "../../hooks/useFilter";
 
 const columnsDefinitions: TableColumn[] = [
@@ -94,7 +95,7 @@ const Table = () => {
     const { enqueueSnackbar } = useSnackbar();
     const subscribed = useRef(true);
     const [data, setData] = useState<Category[]>([]);
-    const [loading, setLoading] = useState<boolean>(false);
+    const loading = useContext(LoadingContext);
     const tableRef = useRef() as React.MutableRefObject<MuiDataTableRefComponent>;
 
     const {
@@ -132,7 +133,6 @@ const Table = () => {
     ]);
 
     async function getData() {
-        setLoading(true);
 
         try {
             const { data } = await categoryHttp.list<listResponse<Category>>(
@@ -152,14 +152,12 @@ const Table = () => {
                 setTotalRecords(data.meta.total);
             }
         } catch (e) {
-            console.log(e);
             if (categoryHttp.isCancelledRequest(e)) {
                 return;
             }
             enqueueSnackbar("Não foi possível carregar as informações", { variant: "error" });
-        } finally {
-            setLoading(false);
         }
+        
     }
 
 

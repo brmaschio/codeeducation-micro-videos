@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Link } from "react-router-dom";
 import format from "date-fns/format";
@@ -14,6 +14,7 @@ import castMemberHttp from "../../util/http/cast-member-http";
 import * as yup from '../../util/vendor/yup';
 import { CastMember, listResponse, CastMemberTypeMap } from "../../util/models";
 import DefaultTable, { MuiDataTableRefComponent, TableColumn } from "../../components/Table";
+import LoadingContext from "../../components/Loading/LoadingContext";
 import FilterResetButton from "../../components/Table/FilterResetButton";
 import useFilter from "../../hooks/useFilter";
 
@@ -93,7 +94,7 @@ const Table = () => {
     const { enqueueSnackbar } = useSnackbar();
     const subscribed = useRef(false);
     const [data, setData] = useState<CastMember[]>([]);
-    const [loading, setLoading] = useState<boolean>(false);
+    const loading = useContext(LoadingContext);
     const tableRef = useRef() as React.MutableRefObject<MuiDataTableRefComponent>;
 
     const {
@@ -169,7 +170,6 @@ const Table = () => {
     ]);
 
     async function getData() {
-        setLoading(true);
 
         try {
             const { data } = await castMemberHttp.list<listResponse<CastMember>>({
@@ -195,15 +195,12 @@ const Table = () => {
 
 
         } catch (e) {
-            console.log(e);
 
             if (castMemberHttp.isCancelledRequest(e)) {
                 return;
             }
 
             enqueueSnackbar("Não foi possível carregar as informações", { variant: "error" });
-        } finally {
-            setLoading(false);
         }
     }
 

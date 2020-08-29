@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useContext } from 'react';
 
 import { Link } from "react-router-dom";
 
@@ -11,6 +11,7 @@ import parseISO from "date-fns/parseISO";
 import { useSnackbar } from "notistack";
 
 import DefaultTable, { MuiDataTableRefComponent, TableColumn } from "../../components/Table";
+import LoadingContext from "../../components/Loading/LoadingContext";
 import { BadgeNo, BadgeYes } from "../../components/Badge";
 import FilterResetButton from "../../components/Table/FilterResetButton";
 import genreHttp from "../../util/http/genre-http";
@@ -108,7 +109,7 @@ export const Table = () => {
     const { enqueueSnackbar } = useSnackbar();
     const [data, setData] = useState<Genre[]>([]);
     const subscribed = useRef(true);
-    const [loading, setLoading] = useState<boolean>(false);
+    const loading = useContext(LoadingContext);
     const tableRef = useRef() as React.MutableRefObject<MuiDataTableRefComponent>;
     // eslint-disable-next-line
     const [categories, setCategories] = useState<Category[]>([]);
@@ -180,7 +181,6 @@ export const Table = () => {
                     (columnCategories.options as any).filterOptions.names = data.data.map(category => category.name);
                 }
             } catch (e) {
-                console.log(e);
                 if (categoryHttp.isCancelledRequest(e)) {
                     return;
                 }
@@ -216,7 +216,6 @@ export const Table = () => {
     ]);
 
     async function getData() {
-        setLoading(true);
 
         try {
 
@@ -241,14 +240,12 @@ export const Table = () => {
             }
 
         } catch (e) {
-            console.log(e);
             if (genreHttp.isCancelledRequest(e)) {
                 return;
             }
             enqueueSnackbar("Não foi possível carregar as informações", { variant: "error" });
-        } finally {
-            setLoading(false);
         }
+        
     }
 
     return (

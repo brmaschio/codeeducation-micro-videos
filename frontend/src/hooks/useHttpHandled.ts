@@ -13,7 +13,6 @@ const useHttpHandled = () => {
             return data;
 
         } catch (e) {
-            console.log(e);
             if (!Axios.isCancel(e)) {
                 enqueueSnackbar("Não foi possível carregar as informações", { variant: "error" });
             }

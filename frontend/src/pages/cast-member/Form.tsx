@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useHistory } from 'react-router-dom';
 import { useParams } from 'react-router';
@@ -18,8 +18,7 @@ import castMemberHttp from "../../util/http/cast-member-http";
 import * as yup from '../../util/vendor/yup';
 import { CastMember, simpleResponse } from "../../util/models";
 import SubmitActions from "../../components/SubmitActions";
-
-
+import LoadingContext from "../../components/Loading/LoadingContext";
 
 const validationSchema = yup.object().shape({
     name: yup.string().label('Nome').required().max(255),
@@ -37,9 +36,7 @@ export default function Form() {
     const history = useHistory();
     const { id } = useParams();
     const [castMember, setCastMember] = useState<CastMember | null>(null);
-    const [loading, setLoading] = useState(false);
-
-
+    const loading = useContext(LoadingContext);
 
     useEffect(() => {
         register({ name: "type" });
@@ -52,20 +49,16 @@ export default function Form() {
         }
 
         (async function getCastMember() {
-            setLoading(true);
             try {
                 const { data } = await castMemberHttp.get(id);
                 setCastMember(data.data);
                 reset(data.data);
-                setLoading(false);
 
             } catch (e) {
-                console.log(e);
                 enqueueSnackbar("Não foi possível carregar as informações", { variant: "error" });
 
-            } finally {
-                setLoading(false);
             }
+
         })();
 
 
@@ -74,7 +67,7 @@ export default function Form() {
 
 
     async function onSubmit(formData, event) {
-        setLoading(true);
+
         try {
             const http = !castMember
                 ? castMemberHttp.create<simpleResponse<CastMember>>(formData)
@@ -82,7 +75,7 @@ export default function Form() {
 
             const { data } = await http;
             enqueueSnackbar("Membro de elenco salvo com sucesso!", { variant: "success" });
-            setLoading(false);
+
             event
                 ?
                 (
@@ -93,7 +86,6 @@ export default function Form() {
                 : history.push("/cast_members");
         } catch (e) {
             enqueueSnackbar("Não foi possível salvar Membro de elenco!", { variant: "error" });
-            setLoading(false);
         }
     }
 

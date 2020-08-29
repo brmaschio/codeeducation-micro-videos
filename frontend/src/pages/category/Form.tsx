@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useParams } from 'react-router';
 import { useHistory } from 'react-router-dom';
 
@@ -13,6 +13,7 @@ import categoryHttp from "../../util/http/category-http";
 import * as yup from '../../util/vendor/yup';
 import { Category, simpleResponse } from "../../util/models";
 import SubmitActions from "../../components/SubmitActions";
+import LoadingContext from "../../components/Loading/LoadingContext";
 import { DefaultForm } from "../../components/DefaultForm";
 
 const validationSchema = yup.object().shape({
@@ -41,7 +42,7 @@ export default function Form() {
     const history = useHistory();
     const { id } = useParams();
     const [category, setCategory] = useState<Category | null>(null);
-    const [loading, setLoading] = useState<boolean>(false);
+    const loading = useContext(LoadingContext);
 
 
     useEffect(() => {
@@ -57,24 +58,22 @@ export default function Form() {
         }
 
         (async function getCategory() {
-            setLoading(true);
+
             try {
                 const { data } = await categoryHttp.get(id);
                 setCategory(data.data);
                 reset(data.data);
             } catch (e) {
-                console.log(e);
                 enqueueSnackbar("Não foi possível carregar as informações", { variant: "error" });
-            } finally {
-                setLoading(false)
             }
+
         })();
 
 
     }, [id, reset, enqueueSnackbar]);
 
     async function onSubmit(formData, event) {
-        setLoading(true);
+
         try {
             const http = !category
                 ? categoryHttp.create<simpleResponse<Category>>(formData)
@@ -82,7 +81,7 @@ export default function Form() {
 
             const { data } = await http;
             enqueueSnackbar('Categoria salva com sucesso!', { variant: "success" });
-            setLoading(false);
+
             event
                 ? (
                     id
@@ -91,9 +90,8 @@ export default function Form() {
                 )
                 : history.push('/categories');
         } catch (e) {
-            console.log(e);
             enqueueSnackbar('Não foi possível salvar a categoria!', { variant: "error" });
-            setLoading(false)
+
         }
     }
 
