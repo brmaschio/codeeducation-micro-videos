@@ -115,6 +115,7 @@ const Table = () => {
     const subscribed = useRef(true);
     const tableRef = useRef() as React.MutableRefObject<MuiDataTableRefComponent>;
     const loading = useContext(LoadingContext);
+    // eslint-disable-next-line
     const [categories, setCategories] = useState<Category[]>();
     const { openDeleteDialog, setOpenDeleteDialog, rowsToDelete, setRowsToDelete } = useDeleteCollection();
 
@@ -195,6 +196,7 @@ const Table = () => {
         return () => {
             subscribed.current = false
         }
+        // eslint-disable-next-line
     }, [enqueueSnackbar]);
 
     const filteredSearch = filterManager.clearSearchText(debouncedFilterState.search);
@@ -208,11 +210,13 @@ const Table = () => {
             subscribed.current = false
         }
 
+        // eslint-disable-next-line
     }, [
         filteredSearch,
         debouncedFilterState.pagination.page,
         debouncedFilterState.pagination.per_page,
         debouncedFilterState.order,
+        // eslint-disable-next-line
         JSON.stringify(debouncedFilterState.extraFilter)
     ]);
 

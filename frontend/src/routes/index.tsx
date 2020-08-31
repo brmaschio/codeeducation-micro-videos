@@ -2,6 +2,8 @@ import { RouteProps } from "react-router-dom";
 
 import Dashboard from "../pages/Dashboard";
 
+import UploadPage from '../pages/uploads/index';
+
 import CategoryList from "../pages/category/PageList";
 import CategoryForm from "../pages/category/PageForm";
 
@@ -20,8 +22,10 @@ export interface MyRouteProps extends RouteProps {
 };
 
 const routes: MyRouteProps[] = [
+
     { name: 'dashboard', label: 'Dashboard', path: '/', component: Dashboard, exact: true },
-    
+    { name: 'uploads', label: 'Uploads', path: '/uploads', component: UploadPage, exact: true },
+
     { name: 'cast_members.list', label: 'Listar Membros Do Elenco', path: '/cast_members', component: CastMembersList, exact: true },
     { name: 'cast_members.create', label: 'Criar Membros Do Elenco', path: '/cast_members/create', component: CastMembersForm, exact: true },
     { name: 'cast_members.edit', label: 'Editar Membros Do Elenco', path: '/cast_members/:id/edit', component: CastMembersForm, exact: true },
@@ -33,6 +37,7 @@ const routes: MyRouteProps[] = [
     { name: 'genres.list', label: 'Listar Gêneros', path: '/genres', component: GenresList, exact: true },
     { name: 'genres.create', label: 'Criar Gêneros', path: '/genres/create', component: GenreForm, exact: true },
     { name: 'genres.edit', label: 'Editar Gêneros', path: '/genres/:id/edit', component: GenreForm, exact: true },
+
     { name: 'videos.list', label: 'Listar videos', path: '/videos', component: VideoList, exact: true },
     { name: 'videos.create', label: 'Criar videos', path: '/videos/create', component: VideoForm, exact: true },
     { name: 'videos.edit', label: 'Editar videos', path: '/videos/:id/edit', component: VideoForm, exact: true }

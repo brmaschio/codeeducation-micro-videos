@@ -10,6 +10,7 @@ const useSnackbarFormError = (submitCount, errors) => {
         if (submitCount > 0 && hasErrors) {
             enqueueSnackbar("Formulário inválido. Reveja os campos marcados de vermelho", { variant: "error" });
         }
+        // eslint-disable-next-line
     }, [submitCount])
 
 };

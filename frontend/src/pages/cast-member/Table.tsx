@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 
 import { Link } from "react-router-dom";
 import format from "date-fns/format";

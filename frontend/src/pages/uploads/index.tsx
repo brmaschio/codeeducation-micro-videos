@@ -6,7 +6,7 @@ import {
     CardContent, Divider,
     ExpansionPanel,
     ExpansionPanelDetails,
-    ExpansionPanelSummary, Fab,
+    ExpansionPanelSummary,
     Grid, List,
     Typography
 } from "@material-ui/core";

@@ -84,6 +84,7 @@ export const AsyncAutoComplete = React.forwardRef<AsyncAutoCompleteComponent, As
         if (!open && !freeSolo) {
             setOptions([])
         }
+        // eslint-disable-next-line
     }, [open]);
 
     const deps = freeSolo ? debouncedSearchText : open;
@@ -108,7 +109,7 @@ export const AsyncAutoComplete = React.forwardRef<AsyncAutoCompleteComponent, As
         return () => {
             isSubscribed = false
         }
-
+        // eslint-disable-next-line
     }, [deps]);
 
 
