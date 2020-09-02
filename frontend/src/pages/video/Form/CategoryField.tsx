@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useImperativeHandle, RefAttributes, MutableRefObject, useRef } from "react";
+import { useImperativeHandle, RefAttributes, MutableRefObject, useRef, useCallback } from "react";
 
 import { FormControl, FormControlProps, Typography } from '@material-ui/core';
 import FormHelperText from "@material-ui/core/FormHelperText";
@@ -26,13 +26,14 @@ export interface CategoryFieldComponent {
 }
 
 const CategoryField = React.forwardRef<CategoryFieldComponent, CategoryFieldProps>((props, ref) => {
+    
     const { categories, setCategories, genres, disabled, error } = props;
     const autoCompleteHttp = useHttpHandled();
     const { addItem, removeItem } = useCollectionManager(categories, setCategories);
 
     const autoCompleteRef = useRef() as MutableRefObject<AsyncAutoCompleteComponent>;
 
-    function fetchOptions() {
+    const fetchOptions = useCallback(() => {
         return autoCompleteHttp(
             categoryHttp
                 .list({
@@ -42,7 +43,8 @@ const CategoryField = React.forwardRef<CategoryFieldComponent, CategoryFieldProp
                     }
                 })
         ).then(data => data.data).catch(error => console.log(error));
-    }
+    
+    }, [autoCompleteHttp, genres]);
 
     useImperativeHandle(ref, () => ({
         clear: () => autoCompleteRef.current.clear()

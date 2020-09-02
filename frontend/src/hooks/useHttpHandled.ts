@@ -1,3 +1,5 @@
+import { useCallback } from "react";
+
 import { useSnackbar } from "notistack";
 import Axios from "axios";
 
@@ -5,9 +7,9 @@ const useHttpHandled = () => {
 
     const { enqueueSnackbar } = useSnackbar();
 
-    return async (request: Promise<any>) => {
+    return useCallback(async (request: Promise<any>) => {
         try {
-            
+
             const { data } = await request;
 
             return data;
@@ -18,7 +20,7 @@ const useHttpHandled = () => {
             }
             throw e;
         }
-    }
+    }, [enqueueSnackbar]);
 };
 
 export default useHttpHandled;

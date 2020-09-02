@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { createRef, MutableRefObject, useEffect, useRef, useState, useContext } from 'react';
+import { createRef, MutableRefObject, useEffect, useRef, useState, useContext, useCallback } from 'react';
 
 import { useForm } from "react-hook-form";
 import { useHistory, useParams } from 'react-router-dom';
@@ -190,7 +190,8 @@ const Index = () => {
 
     }
 
-    function resetForm(data) {
+    const resetForm = useCallback((data) => {
+        
         Object.keys(uploadRef.current).forEach(
             field => uploadRef.current[field].current.clear()
         );
@@ -199,7 +200,8 @@ const Index = () => {
         categoriesRef.current.clear();
         genresRef.current.clear();
         reset(data);
-    }
+
+    }, [castMemberRef, categoriesRef, genresRef, uploadRef]);
 
     function validateSubmit() {
         triggerValidation()

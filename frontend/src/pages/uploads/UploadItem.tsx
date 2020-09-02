@@ -6,6 +6,7 @@ import ImageIcon from '@material-ui/icons/Image';
 import { makeStyles } from "@material-ui/core/styles";
 
 import UploadProgress from "../../components/UploadProgress";
+import { FileUpload, Upload } from "../../store/upload/types";
 
 import UploadAction from "./UploadAction";
 
@@ -26,13 +27,15 @@ const useStyles = makeStyles((theme: Theme) => {
     })
 
 
-
 });
 
-interface UploadItemProps { };
+interface UploadItemProps {
+    uploadOrFile: Upload | FileUpload;
+};
 
 
 const UploadItem: React.FC<UploadItemProps> = (props) => {
+    const { uploadOrFile } = props;
     const classes = useStyles();
 
     function makeIcon() {
@@ -46,31 +49,23 @@ const UploadItem: React.FC<UploadItemProps> = (props) => {
     return (
         <ListItem>
             <Grid container alignItems={'center'}>
-                <Grid
-                    className={classes.gridTitle}
-                    item
-                    xs={12}
-                    md={9}
-                >
+                <Grid className={classes.gridTitle} item xs={12} md={9}>
 
                     {makeIcon()}
 
                     <Typography color={"inherit"}>
                         {props.children}
-
                     </Typography>
-
                 </Grid>
 
                 <Grid item xs={12} md={3}>
-
                     <Grid
                         container
                         direction={"row"}
                         alignItems={'center'}
                         justify={"flex-end"}>
-                        <UploadProgress size={48} />
-                        <UploadAction />
+                        <UploadProgress size={48} uploadOrFile={uploadOrFile} />
+                        <UploadAction uploadOrFile={uploadOrFile} />
                     </Grid>
 
                 </Grid>

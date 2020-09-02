@@ -1,12 +1,15 @@
 import * as React from 'react';
-import LoadingContext from "./LoadingContext";
 import { useEffect, useMemo, useState } from "react";
+
+import LoadingContext from "./LoadingContext";
 import {
     addGlobalRequestInterceptor,
     addGlobalResponseInterceptor,
     removeGlobalRequestInterceptor,
     removeGlobalResponseInterceptor
 } from "../../util/http";
+
+import { omit } from 'lodash';
 
 export const LoadingProvider = (props) => {
 
@@ -18,10 +21,11 @@ export const LoadingProvider = (props) => {
 
         const requestsIds = addGlobalRequestInterceptor(
             config => {
-                if (isSubscribed) {
+                if (isSubscribed && !config.headers.hasOwnProperty('ignoreLoading')) {
                     setLoading(true);
                     setCountRequest((prevState => prevState + 1))
                 }
+                config.headers = omit(config.headers, 'ignoreLoading');
                 return config
             });
 

@@ -3,7 +3,8 @@ import * as React from 'react';
 import { makeStyles, Theme } from "@material-ui/core/styles";
 import {
     Card,
-    CardContent, Divider,
+    CardContent,
+    Divider,
     ExpansionPanel,
     ExpansionPanelDetails,
     ExpansionPanelSummary,
@@ -13,8 +14,12 @@ import {
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 import { Page } from "../../components/Page";
+import { Upload, UploadModule } from "../../store/upload/types";
+import { VideoFileFieldsMap } from "../../util/models";
 
 import UploadItem from "./UploadItem";
+
+import { useSelector } from "react-redux";
 
 const useStyles = makeStyles((theme: Theme) => {
     return ({
@@ -29,42 +34,53 @@ const useStyles = makeStyles((theme: Theme) => {
     })
 });
 
-interface UploadsProps { }
+interface UploadsProps {
+}
 
 const Uploads: React.FC<UploadsProps> = (props) => {
 
     const classes = useStyles();
 
+    const uploads = useSelector<UploadModule, Upload[]>((state) => state.upload.uploads);
+
     return (
 
-        <Page title={'Uploads'} >
-            <Card elevation={5}>
-                <CardContent>
-                    <UploadItem>
-                        Video - E o vento levou
-                    </UploadItem>
-                    <ExpansionPanel style={{ margin: 0 }}>
-                        <ExpansionPanelSummary
-                            className={classes.panelSummary}
-                            expandIcon={<ExpandMoreIcon className={classes.expandedIcon} />}
-                        >
-                            <Typography > Ver Detalhes</Typography>
-                        </ExpansionPanelSummary>
-                        <ExpansionPanelDetails style={{ padding: '0px' }}>
-                            <Grid item xs={12}>
-                                <List dense={true} style={{ padding: '0px' }}>
-                                    <Divider />
-                                    <UploadItem>
-                                        Principal - nome.mp4
-                                    </UploadItem>
-                                </List>
-                            </Grid>
-                        </ExpansionPanelDetails>
-                    </ExpansionPanel>
-                </CardContent>
-            </Card>
+        <Page title={'Uploads'}>
+            {uploads.map((upload, key) => (
+                <Card elevation={5} key={key}>
+                    <CardContent>
+                        <UploadItem uploadOrFile={upload}>
+                            {upload.video.title}
+                        </UploadItem>
+                        <ExpansionPanel style={{ margin: 0 }}>
+                            <ExpansionPanelSummary
+                                className={classes.panelSummary}
+                                expandIcon={<ExpandMoreIcon className={classes.expandedIcon} />}
+                            >
+                                <Typography> Ver Detalhes</Typography>
+                            </ExpansionPanelSummary>
+                            <ExpansionPanelDetails style={{ padding: '0px' }}>
+                                <Grid item xs={12}>
+                                    <List dense={true} style={{ padding: '0px' }}>
+                                        {
+                                            upload.files.map((file, key) => (
+                                                <React.Fragment key={key}>
+                                                    <Divider />
+                                                    <UploadItem uploadOrFile={file}>
+                                                        {`${VideoFileFieldsMap[file.fileField]} - ${file.filename}`}
+                                                    </UploadItem>
+                                                </React.Fragment>
+                                            ))
+                                        }
+                                    </List>
+                                </Grid>
+                            </ExpansionPanelDetails>
+                        </ExpansionPanel>
+                    </CardContent>
+                </Card>
+            ))}
         </Page>
     );
-};
 
+}
 export default Uploads;

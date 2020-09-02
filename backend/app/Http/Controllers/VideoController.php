@@ -42,9 +42,10 @@ class VideoController extends BasicCrudController
     public function update(Request $request, $id)
     {
         $obj = $this->findOrFail($id);
-        $validatedData = $this->validate($request, $this->rulesUpdate());
+        $validatedData = $this->validate($request, $request->isMethod('PUT') ? $this->rulesUpdate() : $this->rulesPatch());
         $obj->update($validatedData);
         $resource = $this->resource();
+
         return new $resource($obj);
     }
 

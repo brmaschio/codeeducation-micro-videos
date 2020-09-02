@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { MutableRefObject, RefAttributes, useImperativeHandle, useRef } from "react";
+import { MutableRefObject, RefAttributes, useImperativeHandle, useRef, useCallback } from "react";
 
 import { Typography, FormControl, FormControlProps } from "@material-ui/core";
 import FormHelperText from "@material-ui/core/FormHelperText";
@@ -41,12 +41,14 @@ const GenreField = React.forwardRef<GenreFieldComponent, GenreFieldProps>((props
 
     const autoCompleteRef = useRef() as MutableRefObject<AsyncAutoCompleteComponent>;
 
-    function fetchOptions(searchText) {
+    const fetchOptions = useCallback((searchText) => {
+
         return autoCompleteHttp(
             genreHttp
                 .list({ queryParams: { search: searchText, all: "" } })
         ).then(data => data.data).catch(error => console.log(error));
-    }
+    
+    }, [autoCompleteHttp]);
 
     useImperativeHandle(ref, () => ({
         clear: () => autoCompleteRef.current.clear()

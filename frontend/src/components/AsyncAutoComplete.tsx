@@ -10,7 +10,6 @@ import { TextFieldProps } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
 import CircularProgress from "@material-ui/core/CircularProgress";
 
-
 interface AsyncAutoCompleteProps extends RefAttributes<AsyncAutoCompleteComponent> {
     fetchOptions: (debouncedSearchText) => Promise<any>;
     debounceTime?: number;
@@ -24,7 +23,7 @@ export interface AsyncAutoCompleteComponent {
 
 export const AsyncAutoComplete = React.forwardRef<AsyncAutoCompleteComponent, AsyncAutoCompleteProps>((props, ref) => {
 
-    const { AutocompleteProps, debounceTime = 300 } = props;
+    const { AutocompleteProps, debounceTime = 300, fetchOptions } = props;
     const { freeSolo, onOpen, onClose, onInputChange } = AutocompleteProps as any;
     const [open, setOpen] = useState<boolean>(false);
     const [searchText, setSearchText] = useState<string>("");
@@ -84,21 +83,22 @@ export const AsyncAutoComplete = React.forwardRef<AsyncAutoCompleteComponent, As
         if (!open && !freeSolo) {
             setOptions([])
         }
-        // eslint-disable-next-line
-    }, [open]);
+    }, [freeSolo, open]);
 
-    const deps = freeSolo ? debouncedSearchText : open;
+
     useEffect(() => {
-        let isSubscribed = true;
 
-        if (!open || (debouncedSearchText === "" && freeSolo)) {
-            return
+        if (!open) {
+            return;
+        }
+        if (debouncedSearchText === "" && freeSolo) {
+            return;
         }
 
+        let isSubscribed = true;
         (async () => {
             try {
-                const data = await props.fetchOptions(debouncedSearchText);
-
+                const data = await fetchOptions(debouncedSearchText);
                 if (isSubscribed) {
                     setOptions(data);
                 }
@@ -106,11 +106,12 @@ export const AsyncAutoComplete = React.forwardRef<AsyncAutoCompleteComponent, As
 
             }
         })();
+
         return () => {
             isSubscribed = false
         }
-        // eslint-disable-next-line
-    }, [deps]);
+
+    }, [freeSolo, debouncedSearchText, open, fetchOptions]);
 
 
     useImperativeHandle(ref, () => ({
