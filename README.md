@@ -1,4 +1,4 @@
-# micro-videos
+# Micro Vídeos
 
 Projeto Desenvolvido no curso **Desenvolvimento de Aplicações Modernas e Escaláveis com Microsserviços** da *[Code Education](https://code.education/)*
 
@@ -13,7 +13,7 @@ ____
  - Gêneros
  - Categorias
  
-#### O Microserviço
+#### O Microsserviço
 
 - **Backend:** API REST Laravel, com testes automatizados.
 - **FrontEnd:** SPA React, com Material UI, Context API, Hooks e Redux.
@@ -24,4 +24,13 @@ ____
 
 ### Demais Microsserviços Do Projeto
 
-Atualizações em breve, pois ainda estou fazendo o curso.
+*Atualizações em breve, pois ainda estou fazendo o curso!*
+
++ **Micro Vídeos:** Cadastros, parte administrativa
+    + `github.com/brmaschio/streaming-micro-videos`
+
++ **Micro Catalog:** Recebe dados cadastrados e indexa no ElasticSearch
+    + `github.com/brmaschio/streaming-micro-catalog`
+
++ **RabbitMQ:** Mensageiria, comunicação entre os microsserviços
+    + `github.com/brmaschio/streaming-rabbitmq`
