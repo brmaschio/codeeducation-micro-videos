@@ -62,3 +62,30 @@ services:
 networks:
     app-network:
         driver: bridge
+
+
+
+
+# Corrigir possivel problemas no ambiente de dev
+
+
+
+
+# --- NAO COPIA ENV ---
+# 
+# cd frontend 
+# cp .env.example .env
+
+
+
+
+# --- NAO SOBE COMPOSER ---
+# 
+# docker-compose exec app bash
+# cd backend/
+# composer install
+# composer dump-autoload
+# php artisan migrate:refresh --seed
+
+
+
