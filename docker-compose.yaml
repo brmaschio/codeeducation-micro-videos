@@ -16,6 +16,7 @@ services:
             - ./.docker/php/custom.ini:/usr/local/etc/php/conf.d/custom.ini
         networks:
             - app-network
+            - streaming-rabbitmq_codeflix # PASTADOREBBITMQ_codeflix
         depends_on:
             - db
             - redis
@@ -62,22 +63,21 @@ services:
 networks:
     app-network:
         driver: bridge
+    streaming-rabbitmq_codeflix: # PASTADOREBBITMQ_codeflix
+        external: true
+
+
+
 
 
 
 
 # Corrigir possivel problemas no ambiente de dev
 
-
-
-
 # --- NAO COPIA ENV ---
 # 
 # cd frontend 
 # cp .env.example .env
-
-
-
 
 # --- NAO SOBE COMPOSER ---
 # 
