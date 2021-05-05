@@ -7,6 +7,7 @@ use App\Model\Genre;
 
 class GenreObserver
 {
+
     public function created(Genre $genre)
     {
         $message = new Message($genre->toJson());
@@ -21,7 +22,7 @@ class GenreObserver
 
     public function deleted(Genre $genre)
     {
-        $message = new Message(json_encode['id' => $genre->id]);
+        $message = new Message(json_encode(['id' => $genre->id]));
         \Amqp::publish('model.genre.deleted', $message);
     }
 

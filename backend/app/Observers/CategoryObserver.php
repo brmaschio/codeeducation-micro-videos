@@ -22,7 +22,7 @@ class CategoryObserver
 
     public function deleted(Category $category)
     {
-        $message = new Message(json_encode['id' => $category->id]);
+        $message = new Message(json_encode(['id' => $category->id]));
         \Amqp::publish('model.category.deleted', $message);
     }
 

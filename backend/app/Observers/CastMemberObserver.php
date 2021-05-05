@@ -2,11 +2,12 @@
 
 namespace App\Observers;
 
-use Bschmitt\Amqp\Message;
 use App\Model\CastMember;
+use Bschmitt\Amqp\Message;
 
 class CastMemberObserver
 {
+
     public function created(CastMember $castMember)
     {
         $message = new Message($castMember->toJson());
@@ -21,7 +22,7 @@ class CastMemberObserver
 
     public function deleted(CastMember $castMember)
     {
-        $message = new Message(json_encode['id' => $castMember->id]);
+        $message = new Message(json_encode(['id' => $castMember->id]));
         \Amqp::publish('model.cast-member.deleted', $message);
     }
 
