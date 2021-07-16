@@ -28,6 +28,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
 
+        // composer require chelout/laravel-relationship-events
+
         Category::observe(SyncModelObserver::class);
         Genre::observe(SyncModelObserver::class);
         CastMember::observe(SyncModelObserver::class);
